@@ -1,65 +1,127 @@
-import Image from "next/image";
+import ChatWidget from "@/components/ChatWidget";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      {/* Hero Section */}
+      <section className="max-w-5xl mx-auto px-6 pt-20 pb-16 text-center">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full text-blue-700 text-sm font-medium mb-6">
+          <span className="w-2 h-2 bg-blue-500 rounded-full" />
+          Self-Service Currency Exchange
+        </div>
+        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-5 leading-tight">
+          Fast &amp; Simple<br />Foreign Currency Exchange
+        </h1>
+        <p className="text-lg text-gray-500 max-w-xl mx-auto mb-8">
+          Exchange your foreign banknotes to Korean Won instantly at our self-service kiosks — no queues, no counters.
+        </p>
+        <a
+          href="https://ktp-exchange.channel.io"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors shadow-sm"
+        >
+          Contact Support
+        </a>
+      </section>
+
+      {/* How it works */}
+      <section className="max-w-5xl mx-auto px-6 py-16">
+        <h2 className="text-2xl font-bold text-gray-900 text-center mb-10">
+          How It Works
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {steps.map((step, i) => (
+            <div
+              key={i}
+              className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-shadow"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+              <div className="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold text-lg mb-4">
+                {i + 1}
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">{step.title}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{step.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="max-w-3xl mx-auto px-6 py-16">
+        <h2 className="text-2xl font-bold text-gray-900 text-center mb-10">
+          Common Questions
+        </h2>
+        <div className="space-y-4">
+          {faqs.map((faq, i) => (
+            <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+              <h3 className="font-semibold text-gray-900 mb-2">{faq.q}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{faq.a}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Support CTA */}
+      <section className="max-w-5xl mx-auto px-6 py-12 text-center">
+        <div className="bg-blue-600 rounded-3xl p-10 text-white">
+          <h2 className="text-2xl font-bold mb-3">Need Help?</h2>
+          <p className="text-blue-100 mb-6 max-w-md mx-auto">
+            Our AI assistant is available 24/7 for common questions. For transaction or payment issues, contact our support team directly.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
           <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+            href="https://ktp-exchange.channel.io"
             target="_blank"
             rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-colors"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
+            Contact Support Team
           </a>
         </div>
-      </main>
-    </div>
+      </section>
+
+      <footer className="text-center text-sm text-gray-400 py-8">
+        © {new Date().getFullYear()} KTP Exchange. All rights reserved.
+      </footer>
+
+      <ChatWidget />
+    </main>
   );
 }
+
+const steps = [
+  {
+    title: "Select Language",
+    description: "Choose your preferred language on the kiosk screen to get started.",
+  },
+  {
+    title: "Scan Passport",
+    description: "Place your valid passport on the scanner for identity verification.",
+  },
+  {
+    title: "Insert Banknotes",
+    description: "Insert your foreign banknotes one at a time as shown on screen.",
+  },
+  {
+    title: "Collect KRW",
+    description: "Review the exchange amount, confirm, and collect your Korean Won.",
+  },
+];
+
+const faqs = [
+  {
+    q: "What currencies does the kiosk accept?",
+    a: "Supported currencies and denominations are displayed on the kiosk screen. Generally, major foreign currencies in valid, undamaged condition are accepted.",
+  },
+  {
+    q: "What exchange rate is applied?",
+    a: "The rate is based on the representative bank-posted rate at the time of your transaction. The exact rate is shown on screen before you confirm.",
+  },
+  {
+    q: "Why is the amount I received less than I expected?",
+    a: "The final amount depends on the exchange rate at the time and rounding rules — amounts below KRW 1,000 are rounded down. For specific transaction issues, please contact support.",
+  },
+  {
+    q: "What do I do if my banknote is rejected?",
+    a: "Check that the note is not folded or damaged, is inserted correctly, and is a supported denomination. If it continues to be rejected, contact support.",
+  },
+];

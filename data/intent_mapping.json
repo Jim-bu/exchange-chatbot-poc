@@ -1,0 +1,170 @@
+{
+  "intent_mapping_name": "User Utterance to Intent Mapping",
+  "version": "1.0.0",
+  "intents": [
+    {
+      "intent_id": "service_intro",
+      "category": "direct_answer",
+      "risk_level": "low",
+      "keywords": ["service", "what is", "about", "explain", "tell me"],
+      "sample_phrases": ["what is this service", "service info", "about exchange", "what does this do"],
+      "response_template_id": "tmpl_service_intro_v1"
+    },
+    {
+      "intent_id": "basic_usage",
+      "category": "direct_answer",
+      "risk_level": "low",
+      "keywords": ["how to", "how do", "steps", "guide", "use", "usage", "procedure"],
+      "sample_phrases": ["how to use", "how do I use", "exchange steps", "usage guide", "what are the steps"],
+      "response_template_id": "tmpl_basic_usage_v1"
+    },
+    {
+      "intent_id": "business_hours",
+      "category": "direct_answer",
+      "risk_level": "low",
+      "keywords": ["hours", "time", "open", "close", "operating", "available", "when"],
+      "sample_phrases": ["business hours", "opening hours", "what time", "when is it open", "operating time"],
+      "response_template_id": "tmpl_business_hours_v1"
+    },
+    {
+      "intent_id": "supported_languages",
+      "category": "direct_answer",
+      "risk_level": "low",
+      "keywords": ["language", "english", "korean", "chinese", "japanese", "support language"],
+      "sample_phrases": ["language support", "what languages", "english available", "supported languages"],
+      "response_template_id": "tmpl_supported_languages_v1"
+    },
+    {
+      "intent_id": "exchange_rate_basis",
+      "category": "direct_answer",
+      "risk_level": "low",
+      "keywords": ["rate", "exchange rate", "which rate", "rate basis", "what rate"],
+      "sample_phrases": ["exchange rate", "what rate", "rate basis", "which rate do you use", "rate information"],
+      "response_template_id": "tmpl_exchange_rate_basis_v1"
+    },
+    {
+      "intent_id": "rounding_rule",
+      "category": "direct_answer",
+      "risk_level": "low",
+      "keywords": ["rounding", "rounded", "1000", "less than 1000", "cut off", "rounded down"],
+      "sample_phrases": ["rounding rule", "why rounded down", "amounts below 1000", "what is rounding"],
+      "response_template_id": "tmpl_rounding_rule_v1"
+    },
+    {
+      "intent_id": "banknote_not_accepted",
+      "category": "answer_then_escalate",
+      "risk_level": "medium",
+      "keywords": ["banknote", "bill", "note", "cash", "insert", "rejected", "not accepted", "won't go in", "cannot insert"],
+      "sample_phrases": ["banknote not accepted", "bill rejected", "cash not accepted", "cannot insert note", "machine rejects bill", "note won't go in"],
+      "response_template_id": "tmpl_banknote_not_accepted_v1"
+    },
+    {
+      "intent_id": "passport_scan_failed",
+      "category": "answer_then_escalate",
+      "risk_level": "medium",
+      "keywords": ["passport", "scan", "cannot scan", "scan failed", "not reading", "passport error"],
+      "sample_phrases": ["passport scan failed", "cannot scan passport", "passport not working", "passport not recognized", "scan error"],
+      "response_template_id": "tmpl_passport_scan_failed_v1"
+    },
+    {
+      "intent_id": "screen_stuck",
+      "category": "answer_then_escalate",
+      "risk_level": "medium",
+      "keywords": ["screen", "stuck", "frozen", "not moving", "freeze", "cannot continue", "stopped"],
+      "sample_phrases": ["screen is stuck", "screen frozen", "screen not moving", "machine stopped", "cannot continue"],
+      "response_template_id": "tmpl_screen_stuck_v1"
+    },
+    {
+      "intent_id": "qr_access_issue",
+      "category": "answer_then_escalate",
+      "risk_level": "medium",
+      "keywords": ["qr", "qr code", "cannot scan qr", "qr not working", "page not opening"],
+      "sample_phrases": ["qr not working", "cannot scan qr", "qr code issue", "page not opening", "qr error"],
+      "response_template_id": "tmpl_qr_access_issue_v1"
+    },
+    {
+      "intent_id": "card_not_recognized",
+      "category": "answer_then_escalate",
+      "risk_level": "medium",
+      "keywords": ["card", "card error", "not recognized", "cannot read card", "card problem"],
+      "sample_phrases": ["card not recognized", "card error", "cannot use card", "card not reading", "card issue"],
+      "response_template_id": "tmpl_card_not_recognized_v1"
+    },
+    {
+      "intent_id": "amount_general_explanation",
+      "category": "answer_then_escalate",
+      "risk_level": "medium",
+      "keywords": ["amount", "less", "lower", "less than expected", "why less", "seems low"],
+      "sample_phrases": ["amount seems low", "why is the amount less", "received less than expected", "amount is lower"],
+      "response_template_id": "tmpl_amount_general_explanation_v1"
+    },
+    {
+      "intent_id": "money_not_reflected",
+      "category": "immediate_escalation",
+      "risk_level": "high",
+      "keywords": ["money missing", "not reflected", "not counted", "money not shown", "cash missing", "disappeared"],
+      "sample_phrases": ["money not reflected", "cash missing", "not counted my money", "money disappeared", "not shown"],
+      "response_template_id": "tmpl_escalate_money_not_reflected_v1"
+    },
+    {
+      "intent_id": "refund_request",
+      "category": "immediate_escalation",
+      "risk_level": "high",
+      "keywords": ["refund", "money back", "return money", "get refund", "refund please"],
+      "sample_phrases": ["refund request", "need refund", "want money back", "please refund", "return my money"],
+      "response_template_id": "tmpl_escalate_refund_request_v1"
+    },
+    {
+      "intent_id": "duplicate_charge",
+      "category": "immediate_escalation",
+      "risk_level": "high",
+      "keywords": ["double charged", "charged twice", "duplicate", "paid twice", "double payment"],
+      "sample_phrases": ["charged twice", "double charged", "duplicate payment", "paid twice", "charged double"],
+      "response_template_id": "tmpl_escalate_duplicate_charge_v1"
+    },
+    {
+      "intent_id": "amount_issue_individual_case",
+      "category": "immediate_escalation",
+      "risk_level": "high",
+      "keywords": ["wrong amount", "incorrect amount", "amount wrong", "amount incorrect", "my amount is wrong"],
+      "sample_phrases": ["wrong amount", "amount is incorrect", "received wrong amount", "my amount is wrong"],
+      "response_template_id": "tmpl_escalate_amount_issue_v1"
+    },
+    {
+      "intent_id": "transaction_result_check",
+      "category": "immediate_escalation",
+      "risk_level": "high",
+      "keywords": ["transaction", "result", "did it work", "did it go through", "completed", "payment result"],
+      "sample_phrases": ["did it work", "transaction result", "did the payment go through", "was it successful"],
+      "response_template_id": "tmpl_escalate_transaction_result_v1"
+    },
+    {
+      "intent_id": "complaint_or_claim",
+      "category": "immediate_escalation",
+      "risk_level": "high",
+      "keywords": ["complaint", "complain", "claim", "not happy", "angry", "bad service", "terrible"],
+      "sample_phrases": ["file a complaint", "I want to complain", "bad service", "this is terrible", "claim"],
+      "response_template_id": "tmpl_escalate_complaint_v1"
+    },
+    {
+      "intent_id": "human_agent_request",
+      "category": "immediate_escalation",
+      "risk_level": "high",
+      "keywords": ["human", "agent", "person", "real person", "talk to someone", "customer service", "support"],
+      "sample_phrases": ["talk to human", "real person", "customer service", "speak to agent", "I need support"],
+      "response_template_id": "tmpl_escalate_human_agent_v1"
+    }
+  ],
+  "clarify_templates": {
+    "money": "Do you mean the amount looks lower than expected, or that your money was not reflected after insertion?",
+    "card": "Do you mean the card is not being recognized by the machine, or that you were charged incorrectly?",
+    "rate": "Do you want to know how the exchange rate is calculated, or do you think the amount you received is different from what you expected?",
+    "machine": "Do you mean the screen is stuck, the QR code is not working, or the machine is not accepting your banknote?",
+    "mixed_general_and_risk_case": "Could you clarify — are you looking for general information, or did something go wrong during your transaction?"
+  },
+  "high_risk_keywords": [
+    "refund", "money missing", "not reflected", "wrong amount",
+    "charged twice", "double charged", "duplicate payment",
+    "complaint", "claim", "human", "agent", "real person", "support"
+  ]
+}

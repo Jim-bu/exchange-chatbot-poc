@@ -1,0 +1,106 @@
+{
+  "specific_rules_name": "Self-Service Exchange Kiosk Specific Case Rules",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "case_id": "banknote_not_accepted",
+      "display_name": "Banknote not accepted by machine",
+      "category": "answer_then_escalate",
+      "risk_level": "medium",
+      "first_check_steps": [
+        "Check if the banknote is a currently accepted currency and denomination.",
+        "Straighten any folds or creases in the note.",
+        "Insert the note in the correct orientation as shown on screen.",
+        "Insert only one note at a time — do not insert multiple notes together.",
+        "If the machine returns the note, do not force it in. Remove it and try again."
+      ],
+      "escalate_after_checks": true,
+      "escalate_message": "If the note is still not accepted after these checks, please contact support.",
+      "show_support_link": true
+    },
+    {
+      "case_id": "amount_seems_too_low",
+      "display_name": "Received amount seems lower than expected",
+      "category": "answer_then_escalate",
+      "risk_level": "medium",
+      "explanation": [
+        "The exchange rate applied is based on the representative bank-posted rate at the time of your transaction.",
+        "Amounts below KRW 1,000 are rounded down and not included in the final payout.",
+        "The final amount shown on screen before confirmation reflects the actual amount you will receive."
+      ],
+      "clarification_note": "If you believe there is a specific error in your transaction amount, please contact support.",
+      "escalate_for_specific_case": true,
+      "show_support_link": true
+    },
+    {
+      "case_id": "exchange_rate_basis",
+      "display_name": "Exchange rate basis inquiry",
+      "category": "direct_answer",
+      "risk_level": "low",
+      "answer": "The exchange rate used is based on the representative bank-posted rate for this service. The rate is updated periodically during business hours. You can see the rate applied to your transaction on the kiosk screen before you confirm.",
+      "show_support_link": false
+    },
+    {
+      "case_id": "passport_scan_failed",
+      "display_name": "Passport scan is not working",
+      "category": "answer_then_escalate",
+      "risk_level": "medium",
+      "first_check_steps": [
+        "Open the passport to the photo and personal information page.",
+        "Place the passport flat and fully on the scanner window.",
+        "Avoid light reflection or shadows on the page.",
+        "Keep the passport still while the scan is in progress.",
+        "If the page is bent, gently flatten it before scanning.",
+        "Try removing the passport and reinserting it if the first attempt fails."
+      ],
+      "escalate_after_checks": true,
+      "escalate_message": "If the scan still does not work after multiple attempts, please contact support.",
+      "show_support_link": true
+    },
+    {
+      "case_id": "screen_stuck",
+      "display_name": "Screen is frozen or not progressing",
+      "category": "answer_then_escalate",
+      "risk_level": "medium",
+      "first_check_steps": [
+        "Check what step is currently shown on the screen.",
+        "Wait a few moments — the screen may still be processing.",
+        "Do not insert cash or press multiple buttons while waiting.",
+        "If the screen remains frozen for more than 1–2 minutes, contact support."
+      ],
+      "escalate_after_checks": true,
+      "escalate_message": "Please contact support if the screen does not respond. Do not attempt to restart the machine yourself.",
+      "show_support_link": true
+    },
+    {
+      "case_id": "money_not_reflected",
+      "display_name": "Money was inserted but not reflected",
+      "category": "immediate_escalation",
+      "risk_level": "high",
+      "message": "This requires support review. Please do not insert more cash or restart the machine. Contact support immediately with your location, time of use, currency, and amount.",
+      "show_support_link": true,
+      "required_case_info": [
+        "Location or store name",
+        "Time of use",
+        "Currency type",
+        "Amount inserted",
+        "Photo or screenshot if available"
+      ]
+    },
+    {
+      "case_id": "refund_request",
+      "display_name": "Refund request",
+      "category": "immediate_escalation",
+      "risk_level": "high",
+      "message": "Refund requests must be handled by our support team. Please contact support with your transaction details.",
+      "show_support_link": true,
+      "required_case_info": [
+        "Location or store name",
+        "Time of use",
+        "Currency type",
+        "Amount",
+        "Photo or screenshot if available"
+      ]
+    }
+  ]
+}
