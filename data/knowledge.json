@@ -10,7 +10,7 @@
     ],
     "service_purpose": "To provide fast, convenient, and transparent foreign currency exchange for visitors and travelers.",
     "target_users": "Foreign visitors and travelers with foreign currency banknotes",
-    "service_operator": "KTP Exchange"
+    "service_operator": "Exchange Support"
   },
   "basic_flow": {
     "flow_summary": "Customers follow the instructions shown on the kiosk screen step by step.",
@@ -111,7 +111,7 @@
     ]
   },
   "handover_required_info": {
-    "support_link": "https://ktp-exchange.channel.io",
+    "support_link": "https://exchange.channel.io",
     "support_message": "Please contact our support team with the details of your issue.",
     "required_info_for_support": [
       "Location or store name",

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "KTP Exchange — Self-Service Currency Exchange",
+  title: "Exchange Support — Self-Service Currency Exchange",
   description: "Exchange foreign banknotes to Korean Won quickly and easily at our self-service kiosks.",
 };
 

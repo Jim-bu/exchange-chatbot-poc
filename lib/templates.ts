@@ -1,4 +1,4 @@
-export const SUPPORT_LINK = "https://ktp-exchange.channel.io";
+export const SUPPORT_LINK = "https://exchange.channel.io";
 
 export const responseTemplates: Record<
   string,
