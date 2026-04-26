@@ -127,35 +127,21 @@ export default function ChatWidget() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-gray-200 bg-white px-4 pt-2 pb-1">
+      <div className="border-t border-gray-200 bg-white px-4 pt-2 pb-[max(12px,env(safe-area-inset-bottom))]">
         <p className="text-[11px] text-gray-400 mb-2">
           Describe your issue in 2+ words for the best answer.
         </p>
-        <form onSubmit={handleSubmit} className="flex gap-2 pb-3">
+        <form onSubmit={handleSubmit} className="pb-1">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your question..."
             disabled={isLoading}
-            className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent disabled:bg-gray-50 disabled:text-gray-400"
+            enterKeyHint="send"
+            className="w-full px-4 py-3 text-sm bg-gray-700 text-white placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50"
             autoComplete="off"
           />
-          <button
-            type="submit"
-            disabled={!input.trim() || isLoading}
-            className="px-3 py-2 bg-black hover:bg-gray-800 disabled:bg-gray-200 text-white rounded-xl transition-colors"
-            aria-label="Send message"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-              />
-            </svg>
-          </button>
         </form>
       </div>
     </div>

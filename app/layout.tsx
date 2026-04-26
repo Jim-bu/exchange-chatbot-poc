@@ -17,6 +17,13 @@ export const metadata: Metadata = {
   description: "Exchange foreign banknotes to Korean Won quickly and easily at our self-service kiosks.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
