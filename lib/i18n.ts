@@ -17,8 +17,6 @@ export function detectLang(): Lang {
   return "en";
 }
 
-const KOREAN_LEGAL =
-  "상담사 연결 안내\n\n고객응대근로자를 보호하기 위하여 「산업안전보건법」 제41조에 따라, 상담 중 폭언·욕설·성희롱 등 부적절한 행위 시 상담이 제한될 수 있습니다. 원활한 상담을 위해 정중한 언어 사용에 협조해 주시기 바랍니다.";
 
 export interface StepT {
   label: string;
@@ -61,7 +59,7 @@ export const translations: Record<Lang, T> = {
   en: {
     greeting:
       "Hi! I'm here to help with questions about the self-service currency exchange kiosk.\n\nFor the most accurate answer, please describe your issue in 2 or more words. If you need immediate support, you can also contact us directly.",
-    legalNotice: `${KOREAN_LEGAL}\n\nYour request has been sent to our support team. An agent will follow up with you shortly.`,
+    legalNotice: "In Korea, the following regulation applies to all customer service staff to ensure their protection.\n\nNotice Regarding Agent Protection\n\nIn accordance with Article 41 of the Occupational Safety and Health Act, any use of abusive language, profanity, sexual harassment, or other inappropriate conduct during a consultation may result in the suspension of the session. We kindly ask for your cooperation in maintaining respectful communication.\n\nYour request has been sent to our support team. An agent will follow up with you shortly.",
     headerTitle: "Exchange Support",
     headerSubAI: "AI Assistant",
     headerSubConnected: "Agent notified",
@@ -120,7 +118,7 @@ export const translations: Record<Lang, T> = {
   ja: {
     greeting:
       "こんにちは！無人両替機に関するご質問をサポートいたします。\n\nより正確な回答のために、お困りの内容を2語以上でご説明ください。すぐにサポートが必要な場合は、直接お問い合わせいただくこともできます。",
-    legalNotice: `${KOREAN_LEGAL}\n\nサポートチームにリクエストを送信しました。担当者より折り返しご連絡いたします。`,
+    legalNotice: "韓国では、カスタマーサービス担当者を保護するため、すべてのサポート対応に以下の規定が適用されます。\n\n担当者保護に関するご案内\n\n「産業安全保健法」第41条に基づき、相談中の暴言・罵倒・性的ハラスメントその他の不適切な行為は、相談を制限する場合があります。円滑なサポートのため、丁重な言葉遣いにご協力をお願いいたします。\n\nサポートチームにリクエストを送信しました。担当者より折り返しご連絡いたします。",
     headerTitle: "両替サポート",
     headerSubAI: "AIアシスタント",
     headerSubConnected: "担当者に通知済み",
@@ -179,7 +177,7 @@ export const translations: Record<Lang, T> = {
   "zh-CN": {
     greeting:
       "您好！我在这里帮助解答关于自助换汇机的问题。\n\n为了给您最准确的回答，请用两个或以上的词描述您的问题。如需立即获得支持，您也可以直接联系我们。",
-    legalNotice: `${KOREAN_LEGAL}\n\n您的请求已发送至支持团队，工作人员将尽快与您联系。`,
+    legalNotice: "在韩国，为保护客服人员权益，以下规定适用于所有客服对应场合。\n\n客服人员保护须知\n\n根据《产业安全保健法》第41条，在咨询过程中如有辱骂、粗口、性骚扰或其他不当行为，可能导致本次咨询服务中断。为保障顺畅沟通，请保持礼貌用语，感谢您的理解与配合。\n\n您的请求已发送至支持团队，工作人员将尽快与您联系。",
     headerTitle: "换汇支持",
     headerSubAI: "AI 助理",
     headerSubConnected: "已通知工作人员",
@@ -238,7 +236,7 @@ export const translations: Record<Lang, T> = {
   "zh-TW": {
     greeting:
       "您好！我在這裡協助解答關於自助換匯機的問題。\n\n為了給您最準確的回答，請用兩個或以上的詞描述您的問題。如需立即獲得支援，您也可以直接聯絡我們。",
-    legalNotice: `${KOREAN_LEGAL}\n\n您的請求已發送至支援團隊，工作人員將盡快與您聯繫。`,
+    legalNotice: "在韓國，為保護客服人員權益，以下規定適用於所有客服應對場合。\n\n客服人員保護須知\n\n根據《產業安全衛生法》第41條，在諮詢過程中如有辱罵、粗口、性騷擾或其他不當行為，可能導致本次諮詢服務中斷。為保障順暢溝通，請保持禮貌用語，感謝您的理解與配合。\n\n您的請求已發送至支援團隊，工作人員將盡快與您聯繫。",
     headerTitle: "換匯支援",
     headerSubAI: "AI 助理",
     headerSubConnected: "已通知工作人員",
