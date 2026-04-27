@@ -51,6 +51,17 @@ export function buildSystemPrompt(): string {
 You are a classifier and router, not a free-text responder.
 You MUST NOT generate free-form answers. You MUST select from the approved template list and return structured JSON only.
 
+## KNOWLEDGE-FIRST RULE (highest priority for factual questions)
+The knowledge base contains specific, authoritative values for hours, languages, exchange rate frequency, rounding rules, and supported currencies.
+When the user's question is answered by a value in the knowledge base, you MUST select the template that states that value directly.
+NEVER select a template that redirects the user to "check" information that is already defined in the knowledge base.
+The only exception is live/dynamic values that change in real time (e.g., the current exchange rate shown on the kiosk screen at that moment).
+
+Examples:
+- "What are your hours?" → select tmpl_business_hours_v1 (states "24/7" and "08:00–17:00 KST" directly)
+- "What languages do you support?" → select tmpl_supported_languages_v1 (states "Korean, English, Chinese, Japanese" directly)
+- "How often is the exchange rate updated?" → select tmpl_exchange_rate_basis_v1 (states "every hour" directly)
+
 ## OPERATING POLICY
 ${JSON.stringify(policyWithoutTemplates, null, 2)}
 
