@@ -166,13 +166,20 @@ export default function ChatWidget() {
     setIsLoading(true);
 
     try {
-      const res = await fetch("/api/escalate", {
+      // Create session in the unified session Lambda so state is shared
+      const sessionRes = await fetch("/api/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: sessionId, info, messages }),
+      });
+      if (!sessionRes.ok) throw new Error("session_failed");
+
+      // Webhook notification (currently disabled server-side)
+      await fetch("/api/escalate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages, info, sessionId }),
       });
-
-      if (!res.ok) throw new Error("escalate_failed");
 
       setPhase("waiting");
       addBotMessage(t.legalNotice);

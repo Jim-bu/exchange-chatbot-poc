@@ -1,14 +1,11 @@
 import { NextRequest } from "next/server";
-import { createSession } from "@/lib/session-store";
 
-interface WebhookPayload {
-  body: string;
-  connectColor?: string;
-  connectInfo?: Array<{ title: string; description: string }>;
-}
+// Session creation is now handled client-side via POST /api/session
+// so that all session state lives in the single [[...path]] Lambda.
+// This route only sends the Jandi webhook notification (currently disabled).
 
 export async function POST(request: NextRequest) {
-  const { messages, info, sessionId } = await request.json();
+  const { messages, sessionId } = await request.json();
 
   const host = request.headers.get("host") ?? "localhost:3000";
   const protocol = host.startsWith("localhost") ? "http" : "https";
@@ -21,30 +18,25 @@ export async function POST(request: NextRequest) {
     })
     .join("\n\n");
 
-  // Create session for live handoff
-  const sid =
-    sessionId ??
-    `session_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-  createSession({ id: sid, createdAt: Date.now(), status: "waiting", info, transcript });
-
-  // Webhook temporarily disabled — session is created above and visible directly in the agent panel
+  // Jandi webhook temporarily disabled — sessions appear directly in agent panel
   // const webhookUrl = process.env.AGENT_WEBHOOK_URL;
   // if (webhookUrl) {
   //   const timestamp = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
-  //   const payload: WebhookPayload = {
+  //   const payload = {
   //     body: `🔔 Customer Support Request — ${timestamp}`,
   //     connectColor: "#E8534F",
   //     connectInfo: [
   //       { title: "📍 Location", description: info.location },
   //       { title: "💱 Currency / Amount", description: info.currencyAndAmount },
   //       { title: "⚠️ Issue", description: info.problem },
-  //       { title: "📸 Photo / Screenshot", description: info.photo && info.photo.toLowerCase() !== "no photo provided" ? info.photo : "None" },
-  //       { title: "💬 Conversation History", description: transcript },
-  //       { title: "🖥️ Agent Panel", description: `${agentUrl}?session=${sid}` },
+  //       { title: "📸 Photo", description: info.photo?.toLowerCase() !== "no photo provided" ? info.photo : "None" },
+  //       { title: "💬 Conversation", description: transcript },
+  //       { title: "🖥️ Agent Panel", description: `${agentUrl}?session=${sessionId}` },
   //     ],
   //   };
   //   await fetch(webhookUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
   // }
 
-  return Response.json({ ok: true, sessionId: sid });
+  void transcript; void agentUrl;
+  return Response.json({ ok: true, sessionId });
 }
