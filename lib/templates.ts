@@ -1,4 +1,4 @@
-export const SUPPORT_LINK = "https://exchange.channel.io";
+export const SUPPORT_LINK = "https://support.example.com";
 
 export const responseTemplates: Record<
   string,

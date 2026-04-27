@@ -27,5 +27,5 @@
     "escalate": "Use when the issue involves a financial discrepancy, a failed transaction where money was involved, a persistent technical error, or when the customer explicitly requests a human agent."
   },
   "clarify_guidance": "When asking for clarification, ask one specific question. Example: 'Could you tell me more about what happened? Did the machine reject your banknote, or did the screen show an error?'",
-  "support_link": "https://exchange.channel.io"
+  "support_link": "https://support.example.com"
 }
