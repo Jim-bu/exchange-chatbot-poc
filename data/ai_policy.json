@@ -517,7 +517,18 @@
         "not reflected",
         "cash missing",
         "did not count money",
-        "money not shown"
+        "money not shown",
+        "wrong cash",
+        "wrong bills",
+        "cash was wrong",
+        "got wrong bills",
+        "wrong banknotes",
+        "wrong money given",
+        "cash incorrect",
+        "money incorrect",
+        "got the wrong amount",
+        "they gave me wrong cash",
+        "wrong currency returned"
       ],
       "keywords": [
         "money",
@@ -583,7 +594,17 @@
         "wrong amount",
         "amount incorrect",
         "received less money",
-        "my amount is wrong"
+        "my amount is wrong",
+        "wrong cash",
+        "cash wrong",
+        "wrong amount of cash",
+        "wrong bills received",
+        "the cash I got was wrong",
+        "wrong change",
+        "incorrect cash",
+        "the money is wrong",
+        "wrong notes",
+        "I received wrong cash"
       ],
       "keywords": [
         "wrong",

@@ -59,19 +59,34 @@ export async function POST(request: Request) {
     );
   }
 
-  const isEscalation =
-    classification.predicted_category === "immediate_escalation";
   const isClarify = classification.predicted_category === "clarify";
 
+  // Escalation: explicit category, OR AI flagged needs_human, OR answer_then_escalate
+  // (answer_then_escalate templates already tell the user to contact support — we should
+  //  collect their info so a human can actually follow up)
+  const isEscalation =
+    classification.predicted_category === "immediate_escalation" ||
+    classification.predicted_category === "answer_then_escalate" ||
+    classification.needs_human === true;
+
+  const clarifyText = lookupClarifyTemplate(policy, classification.clarify_template_key);
+  const templateText = lookupTemplate(policy, classification.response_template_id);
+
+  // If no template was resolved and it's not a clarify, we have an unhandled case —
+  // always escalate rather than silently dropping to a generic non-actionable message.
+  const noTemplateResolved = !clarifyText && !templateText && !isClarify;
+
   const responseText =
-    lookupClarifyTemplate(policy, classification.clarify_template_key) ??
-    lookupTemplate(policy, classification.response_template_id) ??
-    "I'm not able to answer that right now. Please contact our support team.";
+    clarifyText ??
+    templateText ??
+    "I'm having trouble understanding your request. Let me connect you with our support team.";
+
+  const shouldEscalate = isEscalation || noTemplateResolved;
 
   return Response.json({
     response: responseText,
-    action: isEscalation ? "escalate" : isClarify ? "clarify" : "answer",
-    show_support_link: classification.show_support_link,
+    action: shouldEscalate ? "escalate" : isClarify ? "clarify" : "answer",
+    show_support_link: classification.show_support_link || shouldEscalate,
     required_case_info: classification.required_case_info ?? [],
   });
 }
