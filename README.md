@@ -1,86 +1,101 @@
-# Exchange Kiosk Support Chatbot
+# 무인환전기 고객지원 AI 챗봇
 
-AI-powered customer support chatbot for self-service foreign currency exchange kiosks. Customers scan a QR code on the kiosk and get instant answers or connect to a human agent.
+무인환전기 현장에서 QR을 스캔한 외국인 고객이 즉시 도움을 받을 수 있는 모바일 우선 AI 챗봇 POC.
 
-→ **[Full PRD](docs/prd-exchange-chatbot.md)**
+→ **[상세 PRD 보기](docs/prd-exchange-chatbot.md)**
 
 ---
 
-## What it does
+## 제품 개요
 
-- **Classifies** user questions using GPT-4o-mini and routes to pre-approved response templates — no free-form AI text is ever shown to the customer
-- **Resolves** informational queries instantly (usage, exchange rates, supported currencies, etc.)
-- **Escalates** financial or unresolved issues through a 4-step info collection flow, then notifies a human agent via webhook
-- **Admin panel** at `/admin` lets operators edit knowledge base and AI policy without code changes
+GPT-4o-mini가 사용자 입력을 intent로 분류하고, 서버가 승인된 템플릿만 반환한다. GPT가 생성한 자유 텍스트는 고객에게 직접 노출되지 않는다.
 
-## Stack
+- **일반 문의** → 즉시 자동응답 (FAQ 18개 intent)
+- **금전·거래·환불 이슈** → 4단계 정보 수집 후 상담사 webhook 알림
+- **운영자** → `/admin` 패널에서 코드 수정 없이 지식/정책 JSON 편집
+
+## 기술 스택
 
 - Next.js 16.2.4 (App Router) · TypeScript · Tailwind CSS v4
 - OpenAI GPT-4o-mini
-- Vercel (hosting) · Webhook (agent notifications)
+- Vercel (호스팅) · Webhook (상담사 알림, Jandi 호환)
 
-## Quick start
+## 빠른 시작
 
 ```bash
 npm install
 ```
 
-Create `.env.local`:
+`.env.local` 생성:
 
 ```env
 OPENAI_API_KEY=sk-...
-AGENT_WEBHOOK_URL=https://...   # optional — agent notification webhook
+AGENT_WEBHOOK_URL=https://...   # 선택 — 상담사 알림 webhook URL
 ```
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+[http://localhost:3000](http://localhost:3000) 접속
 
-## Response architecture
-
-All customer-facing text comes from `data/ai_policy.json` templates. GPT only classifies intent and returns a template ID — it never generates visible text.
+## 응답 아키텍처
 
 ```
-User input → GPT-4o-mini (classify) → template lookup → response
-                                              ↓
-                               if escalation: 4-step info collection → webhook
+사용자 입력
+    ↓
+GPT-4o-mini (intent 분류 → JSON)
+    ↓
+서버 템플릿 조회 (ai_policy.json)
+    ↓
+고객에게 템플릿 텍스트만 반환
+
+※ escalation 분기 시:
+    ↓
+4단계 정보 수집 오버레이 (위치 → 통화/금액 → 문제 → 사진)
+    ↓
+/api/escalate → webhook 전송
 ```
 
-**5 response categories:** `direct_answer` · `guided_check` · `clarify` · `answer_then_escalate` · `immediate_escalation`
+**5개 응답 카테고리**
 
-**18 supported intents** covering service info, troubleshooting, and financial issue escalation.
+| 카테고리 | 용도 |
+|---------|------|
+| `direct_answer` | 안전한 FAQ 즉시 응답 |
+| `guided_check` | 1차 점검 안내 |
+| `clarify` | 짧거나 모호한 입력 명확화 |
+| `answer_then_escalate` | 안내 후 support 유도 |
+| `immediate_escalation` | 금전·거래·환불·불만 → 즉시 인계 |
 
-## Key files
+## 주요 파일
 
 ```
 app/
-  api/chat/route.ts       AI classification endpoint
-  api/escalate/route.ts   Agent webhook sender
-  admin/page.tsx          Admin panel
+  api/chat/route.ts       AI 분류 엔드포인트
+  api/escalate/route.ts   상담사 webhook 전송
+  admin/page.tsx          운영자 패널
 
 components/
-  ChatWidget.tsx          Main chat + escalation state machine
-  ChatMessage.tsx         Message bubble with AI badge
+  ChatWidget.tsx          채팅 UI + escalation 상태머신
+  ChatMessage.tsx         메시지 버블 (AI 뱃지 포함)
 
 data/
-  ai_policy.json          Intent routing rules + response templates
-  knowledge.json          Service knowledge base (17 currencies, hours, flow)
-  ai_guidelines.json      AI persona and behavior rules
+  ai_policy.json          intent 라우팅 규칙 + 응답 템플릿
+  knowledge.json          서비스 지식 베이스 (17개 통화, 운영시간 등)
+  ai_guidelines.json      AI 페르소나 및 행동 원칙
 
 lib/
-  ai-context.ts           System prompt builder + template lookup
-  classifier.ts           Local fallback classifier (no API required)
+  ai-context.ts           시스템 프롬프트 빌더 + 템플릿 조회
+  classifier.ts           로컬 fallback 분류기 (API 불필요)
 ```
 
-## Environment variables
+## 환경 변수
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `OPENAI_API_KEY` | Yes | GPT-4o-mini API key |
-| `AGENT_WEBHOOK_URL` | No | Webhook URL for agent handoff notifications |
+| 변수 | 필수 | 설명 |
+|------|------|------|
+| `OPENAI_API_KEY` | Yes | GPT-4o-mini API 키 |
+| `AGENT_WEBHOOK_URL` | No | 상담사 알림 webhook URL |
 
-## Supported currencies (17)
+## 지원 통화 (17종)
 
 USD · JPY · HKD · SGD · AUD · CAD · GBP · NZD · EUR · CHF · CNY · TWD · THB · MYR · PHP · VND · IDR
