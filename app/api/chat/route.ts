@@ -6,8 +6,6 @@ import {
   lookupClarifyTemplate,
 } from "@/lib/ai-context";
 
-const client = new OpenAI();
-
 interface ClassificationOutput {
   predicted_category: string;
   response_template_id: string | null;
@@ -24,6 +22,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "not_configured" }, { status: 503 });
   }
 
+  const client = new OpenAI();
   const systemPrompt = buildSystemPrompt();
   const policy = loadAiPolicy();
 
