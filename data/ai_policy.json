@@ -1,0 +1,1185 @@
+{
+  "ai_policy_name": "Self-Service Exchange Kiosk Chatbot All-Utterance Routing and Response Policy",
+  "version": "1.1.0",
+  "last_updated": "2026-04-22",
+  "goal": "Classify every user utterance, including a single keyword, short phrase, full sentence, or detailed multi-issue message, into predefined intents and categories, then return only approved stored response templates or escalation flows.",
+  "design_principles": {
+    "summary": [
+      "The chatbot must classify all user inputs, not only keywords or short phrases.",
+      "The first user message may be short or very detailed, and both must be handled within the same routing system.",
+      "The model must classify first and respond second.",
+      "The model must not generate new policies, troubleshooting steps, transaction judgments, refund decisions, or unsupported facts.",
+      "Customer-facing responses must come from approved templates only."
+    ]
+  },
+  "response_architecture": {
+    "mode": "utterance_classification_and_template_routing",
+    "allowed_model_roles": [
+      "input form detection",
+      "intent classification",
+      "multi-intent detection",
+      "risk detection",
+      "embedding similarity comparison",
+      "confidence scoring",
+      "clarify question selection",
+      "template selection"
+    ],
+    "disallowed_model_roles": [
+      "free-form answer generation",
+      "policy generation",
+      "refund judgment",
+      "transaction result judgment",
+      "device failure diagnosis",
+      "unsupported knowledge inference",
+      "case-specific outcome estimation"
+    ],
+    "final_response_rule": [
+      "The final customer-facing response must come from a stored template.",
+      "The model may select a template and fill placeholders with approved knowledge values only.",
+      "If no safe template can be selected, the model must choose clarify or escalation.",
+      "If the utterance contains a high-risk issue, escalation must take priority over explanation."
+    ]
+  },
+  "input_handling": {
+    "input_form_definitions": {
+      "single_word": {
+        "description": "One-word input with limited context.",
+        "examples": ["rate", "money", "passport"],
+        "default_rule": "Do not directly answer unless the meaning is unambiguous and mapped to a very safe FAQ intent."
+      },
+      "short_phrase": {
+        "description": "Short input of 2 to 5 words.",
+        "examples": ["exchange rate", "wrong amount", "passport error"],
+        "default_rule": "Use embedding similarity and confidence gating to classify."
+      },
+      "sentence": {
+        "description": "One full sentence with meaningful context.",
+        "examples": [
+          "The machine does not accept my banknote.",
+          "I think the amount is lower than I expected."
+        ],
+        "default_rule": "Use full-utterance intent classification. Do not reduce the sentence to isolated keywords only."
+      },
+      "detailed_multi_issue_message": {
+        "description": "Longer utterance containing multiple issues, steps, or questions.",
+        "examples": [
+          "I scanned my passport and inserted the bill, but the screen stopped and I am not sure if my money was reflected.",
+          "What exchange rate do you use, and also my amount looks wrong."
+        ],
+        "default_rule": "Detect multiple intents and prioritize the highest-risk issue for routing."
+      }
+    },
+    "ui_guidance": {
+      "show_input_hint": true,
+      "input_hint_examples": [
+        "Please describe your issue in 2 or more words.",
+        "More details help us give a more accurate answer.",
+        "For refund, payment, or missing money issues, support may be required."
+      ]
+    },
+    "normalization_rules": [
+      "Trim leading and trailing spaces.",
+      "Normalize repeated spaces and punctuation.",
+      "Convert to lowercase when appropriate for the language.",
+      "Preserve the original user input separately for logs.",
+      "Apply light spelling normalization only when it does not alter meaning.",
+      "Do not simplify a long user message into a short keyword-only representation before classification."
+    ]
+  },
+  "utterance_analysis_policy": {
+    "summary": [
+      "Every first message must be analyzed as a full utterance, regardless of length.",
+      "Longer messages provide stronger semantic evidence and should be classified using overall meaning.",
+      "If multiple intents are present in one utterance, the chatbot must identify both dominant and secondary intents.",
+      "If the utterance contains both a general FAQ topic and a specific transaction-risk issue, the chatbot must prioritize the transaction-risk issue.",
+      "If the utterance contains both a troubleshooting issue and a transaction-risk issue, the chatbot must prioritize the transaction-risk issue."
+    ],
+    "required_analysis_outputs": [
+      "input_form",
+      "contains_multiple_issues",
+      "contains_transaction_risk",
+      "dominant_intent",
+      "secondary_intents",
+      "predicted_category",
+      "confidence"
+    ]
+  },
+  "routing_pipeline": {
+    "ordered_steps": [
+      "preprocess_input",
+      "detect_language",
+      "detect_input_form",
+      "detect_high_risk_keywords_or_meanings",
+      "check_exact_or_near_exact_safe_match",
+      "run_embedding_similarity_against_intent_examples",
+      "run_full_utterance_intent_classification",
+      "detect_multi_intent_or_mixed_request",
+      "calculate_confidence_and_margin",
+      "apply_priority_and_risk_rules",
+      "apply_confidence_gate",
+      "select_category",
+      "select_template",
+      "return_template_or_clarify_or_escalate"
+    ],
+    "priority_rules": [
+      "Immediate escalation takes precedence over direct answer if a high-risk meaning is detected.",
+      "If multiple intents are detected, choose the highest-risk dominant intent for routing.",
+      "If the utterance asks both a general question and reports a risky case, answer must not begin with the general FAQ explanation; route by the risky case first.",
+      "If knowledge is missing for a matched intent, do not improvise; use clarify or escalation.",
+      "If top candidates are close and none is clearly safe, prefer clarify over direct answer."
+    ]
+  },
+  "embedding_and_classification_policy": {
+    "enabled": true,
+    "purpose": "Map user utterances, especially short phrases and semantically variable messages, to the closest approved intent using both embedding similarity and full-utterance classification.",
+    "signal_sources": [
+      "intent sample_phrases",
+      "intent keywords",
+      "intent synonyms",
+      "intent paraphrases",
+      "full-utterance semantic meaning"
+    ],
+    "matching_logic": {
+      "top_k_candidates": 3,
+      "use_similarity_margin": true,
+      "use_keyword_support_signal": true,
+      "use_high_risk_override": true,
+      "use_full_utterance_over_keyword_only": true
+    },
+    "confidence_policy": {
+      "high_confidence_threshold": 0.8,
+      "medium_confidence_threshold": 0.55,
+      "minimum_margin_between_top1_top2": 0.1,
+      "rules": [
+        "If top1 confidence is greater than or equal to 0.8 and the margin over top2 is greater than or equal to 0.1, route automatically.",
+        "If top1 confidence is between 0.55 and 0.79, prefer clarify unless the intent is clearly safe and non-transactional.",
+        "If top1 confidence is below 0.55, do not directly answer.",
+        "If the top candidate is high-risk, escalation may be chosen even when confidence is only moderate.",
+        "If a detailed utterance clearly contains a high-risk issue, do not downgrade it to a safe FAQ answer because of one overlapping keyword."
+      ]
+    },
+    "ambiguity_policy": {
+      "when_to_clarify": [
+        "When top1 and top2 are close.",
+        "When the utterance is too short and broad.",
+        "When the same utterance can refer to both general information and a specific risky case.",
+        "When the message asks a mixed question and the risky part is not clearly dominant."
+      ],
+      "when_to_escalate_instead_of_clarify": [
+        "When the utterance suggests missing money.",
+        "When the utterance suggests refund or charge dispute.",
+        "When the utterance suggests a specific amount mismatch for an individual case.",
+        "When the utterance suggests transaction outcome uncertainty.",
+        "When the utterance shows complaint or strong dissatisfaction requiring support."
+      ]
+    }
+  },
+  "risk_priority_policy": {
+    "priority_order": [
+      "refund_request",
+      "duplicate_charge",
+      "money_not_reflected",
+      "amount_issue_individual_case",
+      "transaction_result_check",
+      "complaint_or_claim",
+      "human_agent_request",
+      "troubleshooting_issue",
+      "general_faq"
+    ],
+    "rules": [
+      "If more than one intent is detected, the chatbot must prioritize the highest item in the risk priority order.",
+      "A general FAQ intent must never override a transaction-risk intent in the same utterance.",
+      "A troubleshooting intent must not override a transaction-risk intent in the same utterance.",
+      "If a high-risk issue is included in a mixed utterance, the chatbot must prioritize escalation and must not answer only the lower-risk part of the message."
+    ]
+  },
+  "category_definitions": {
+    "direct_answer": {
+      "description": "Safe informational answer using approved knowledge only.",
+      "allowed_for": [
+        "service_intro",
+        "business_hours",
+        "supported_languages",
+        "exchange_rate_basis",
+        "rounding_rule",
+        "basic_usage"
+      ]
+    },
+    "guided_check": {
+      "description": "Return approved first-step troubleshooting guidance only.",
+      "allowed_for": [
+        "banknote_not_accepted",
+        "passport_scan_failed",
+        "screen_stuck",
+        "qr_access_issue"
+      ]
+    },
+    "clarify": {
+      "description": "Ask a safe narrowing question when intent is ambiguous.",
+      "allowed_for": [
+        "short_ambiguous_money",
+        "short_ambiguous_rate",
+        "short_ambiguous_machine",
+        "mixed_general_and_risk_case"
+      ]
+    },
+    "answer_then_escalate": {
+      "description": "Provide limited approved explanation or first-step guidance, then direct to support if unresolved.",
+      "allowed_for": [
+        "banknote_not_accepted",
+        "passport_scan_failed",
+        "screen_stuck",
+        "qr_access_issue",
+        "amount_general_explanation"
+      ]
+    },
+    "immediate_escalation": {
+      "description": "Do not attempt to resolve or judge. Direct to support with required case information.",
+      "allowed_for": [
+        "money_not_reflected",
+        "refund_request",
+        "duplicate_charge",
+        "amount_issue_individual_case",
+        "transaction_result_check",
+        "complaint_or_claim",
+        "human_agent_request"
+      ]
+    }
+  },
+  "intent_catalog": [
+    {
+      "intent_id": "service_intro",
+      "category": "direct_answer",
+      "risk_level": "low",
+      "sample_phrases": ["service info", "what is this", "about service", "exchange service"],
+      "keywords": ["service", "exchange", "info"],
+      "response_template_id": "tmpl_service_intro_v1",
+      "knowledge_keys": [
+        "service_overview.service_description",
+        "service_overview.main_functions",
+        "service_overview.target_users"
+      ]
+    },
+    {
+      "intent_id": "basic_usage",
+      "category": "direct_answer",
+      "risk_level": "low",
+      "sample_phrases": ["how to use", "use kiosk", "exchange steps", "usage guide"],
+      "keywords": ["use", "how", "steps", "guide"],
+      "response_template_id": "tmpl_basic_usage_v1",
+      "knowledge_keys": [
+        "basic_flow.flow_summary",
+        "basic_flow.flow_steps",
+        "basic_flow.detailed_steps"
+      ]
+    },
+    {
+      "intent_id": "business_hours",
+      "category": "direct_answer",
+      "risk_level": "low",
+      "sample_phrases": ["business hours", "opening hours", "support hours", "operating time"],
+      "keywords": ["hours", "time", "open", "support"],
+      "response_template_id": "tmpl_business_hours_v1",
+      "knowledge_keys": [
+        "business_hours.kiosk_hours",
+        "business_hours.support_hours"
+      ]
+    },
+    {
+      "intent_id": "supported_languages",
+      "category": "direct_answer",
+      "risk_level": "low",
+      "sample_phrases": ["language support", "supported languages", "english available", "chatbot language"],
+      "keywords": ["language", "english", "chinese", "japanese"],
+      "response_template_id": "tmpl_supported_languages_v1",
+      "knowledge_keys": [
+        "supported_languages.kiosk_languages",
+        "supported_languages.chatbot_languages"
+      ]
+    },
+    {
+      "intent_id": "exchange_rate_basis",
+      "category": "direct_answer",
+      "risk_level": "medium",
+      "sample_phrases": ["exchange rate", "rate basis", "which rate", "what rate do you use"],
+      "keywords": ["rate", "exchange", "basis"],
+      "response_template_id": "tmpl_exchange_rate_basis_v1",
+      "knowledge_keys": [
+        "exchange_rate.rate_basis",
+        "exchange_rate.rate_reference_time",
+        "exchange_rate.rate_update_cycle",
+        "exchange_rate.rate_display_on_screen"
+      ]
+    },
+    {
+      "intent_id": "rounding_rule",
+      "category": "direct_answer",
+      "risk_level": "medium",
+      "sample_phrases": ["rounding rule", "rounded down", "less than 1000", "amount rounded"],
+      "keywords": ["rounding", "rounded", "1000", "cut"],
+      "response_template_id": "tmpl_rounding_rule_v1",
+      "knowledge_keys": [
+        "amount_and_rounding.rounding_rule",
+        "amount_and_rounding.general_amount_rules",
+        "amount_and_rounding.possible_reasons_for_difference"
+      ]
+    },
+    {
+      "intent_id": "amount_general_explanation",
+      "category": "answer_then_escalate",
+      "risk_level": "medium",
+      "sample_phrases": ["amount seems low", "less than expected", "why less amount", "why is it lower"],
+      "keywords": ["amount", "less", "low", "expected"],
+      "response_template_id": "tmpl_amount_general_explanation_v1",
+      "knowledge_keys": [
+        "amount_and_rounding.rounding_rule",
+        "exchange_rate.rate_basis",
+        "amount_and_rounding.possible_reasons_for_difference"
+      ]
+    },
+    {
+      "intent_id": "banknote_not_accepted",
+      "category": "answer_then_escalate",
+      "risk_level": "medium",
+      "sample_phrases": [
+        "banknote rejected",
+        "bill not accepted",
+        "cash not accepted",
+        "cannot insert note",
+        "machine rejects cash"
+      ],
+      "keywords": ["banknote", "bill", "cash", "insert", "reject"],
+      "response_template_id": "tmpl_banknote_not_accepted_v1",
+      "knowledge_keys": [
+        "currencies_and_denominations.current_banknote_policy",
+        "currencies_and_denominations.damaged_banknote_policy",
+        "banknote_input.basic_checks",
+        "banknote_input.single_note_only",
+        "banknote_input.multi_note_input",
+        "banknote_input.partial_insertion_guidance"
+      ]
+    },
+    {
+      "intent_id": "passport_scan_failed",
+      "category": "answer_then_escalate",
+      "risk_level": "medium",
+      "sample_phrases": [
+        "passport scan",
+        "passport error",
+        "cannot scan passport",
+        "passport not read"
+      ],
+      "keywords": ["passport", "scan", "read", "error"],
+      "response_template_id": "tmpl_passport_scan_failed_v1",
+      "knowledge_keys": [
+        "passport_scan_auth.passport_required",
+        "passport_scan_auth.basic_scan_checks",
+        "passport_scan_auth.additional_scan_guidance",
+        "passport_scan_auth.retry_policy"
+      ]
+    },
+    {
+      "intent_id": "screen_stuck",
+      "category": "answer_then_escalate",
+      "risk_level": "medium",
+      "sample_phrases": ["screen stuck", "frozen screen", "not moving", "cannot continue"],
+      "keywords": ["screen", "stuck", "frozen", "continue"],
+      "response_template_id": "tmpl_screen_stuck_v1",
+      "knowledge_keys": []
+    },
+    {
+      "intent_id": "qr_access_issue",
+      "category": "answer_then_escalate",
+      "risk_level": "medium",
+      "sample_phrases": ["qr not working", "cannot scan qr", "page not opening", "qr issue"],
+      "keywords": ["qr", "scan", "page", "open"],
+      "response_template_id": "tmpl_qr_access_issue_v1",
+      "knowledge_keys": [
+        "qr_and_access.landing_page_url",
+        "qr_and_access.alternative_access_method",
+        "qr_and_access.basic_qr_checks"
+      ]
+    },
+    {
+      "intent_id": "money_not_reflected",
+      "category": "immediate_escalation",
+      "risk_level": "high",
+      "sample_phrases": [
+        "money missing",
+        "not reflected",
+        "cash missing",
+        "did not count money",
+        "money not shown"
+      ],
+      "keywords": ["money", "missing", "reflected", "count", "not shown"],
+      "response_template_id": "tmpl_escalate_money_not_reflected_v1",
+      "knowledge_keys": [
+        "transaction_refund_settlement.required_case_info",
+        "handover_required_info.support_link"
+      ]
+    },
+    {
+      "intent_id": "refund_request",
+      "category": "immediate_escalation",
+      "risk_level": "high",
+      "sample_phrases": ["refund request", "need refund", "refund please", "money back"],
+      "keywords": ["refund", "money back", "return"],
+      "response_template_id": "tmpl_escalate_refund_request_v1",
+      "knowledge_keys": [
+        "transaction_refund_settlement.required_case_info",
+        "handover_required_info.support_link"
+      ]
+    },
+    {
+      "intent_id": "duplicate_charge",
+      "category": "immediate_escalation",
+      "risk_level": "high",
+      "sample_phrases": ["double charged", "charged twice", "duplicate payment", "paid twice"],
+      "keywords": ["double", "twice", "duplicate", "charged"],
+      "response_template_id": "tmpl_escalate_duplicate_charge_v1",
+      "knowledge_keys": [
+        "transaction_refund_settlement.required_case_info",
+        "handover_required_info.support_link"
+      ]
+    },
+    {
+      "intent_id": "amount_issue_individual_case",
+      "category": "immediate_escalation",
+      "risk_level": "high",
+      "sample_phrases": [
+        "wrong amount",
+        "amount incorrect",
+        "received less money",
+        "my amount is wrong"
+      ],
+      "keywords": ["wrong", "incorrect", "amount", "received less"],
+      "response_template_id": "tmpl_escalate_amount_issue_v1",
+      "knowledge_keys": [
+        "transaction_refund_settlement.required_case_info",
+        "handover_required_info.support_link"
+      ]
+    },
+    {
+      "intent_id": "transaction_result_check",
+      "category": "immediate_escalation",
+      "risk_level": "high",
+      "sample_phrases": [
+        "transaction result",
+        "check transaction",
+        "did it work",
+        "payment result"
+      ],
+      "keywords": ["transaction", "result", "check", "worked"],
+      "response_template_id": "tmpl_escalate_transaction_result_v1",
+      "knowledge_keys": [
+        "transaction_refund_settlement.required_case_info",
+        "handover_required_info.support_link"
+      ]
+    },
+    {
+      "intent_id": "complaint_or_claim",
+      "category": "immediate_escalation",
+      "risk_level": "high",
+      "sample_phrases": ["file complaint", "this is bad", "not happy", "claim issue"],
+      "keywords": ["complaint", "claim", "bad", "angry"],
+      "response_template_id": "tmpl_escalate_complaint_v1",
+      "knowledge_keys": ["handover_required_info.support_link"]
+    },
+    {
+      "intent_id": "human_agent_request",
+      "category": "immediate_escalation",
+      "risk_level": "high",
+      "sample_phrases": ["human support", "talk to agent", "real person", "customer service"],
+      "keywords": ["human", "agent", "person", "support"],
+      "response_template_id": "tmpl_escalate_human_agent_v1",
+      "knowledge_keys": ["handover_required_info.support_link"]
+    }
+  ],
+  "high_risk_keyword_override": {
+    "enabled": true,
+    "keywords": [
+      "refund",
+      "money missing",
+      "not reflected",
+      "wrong amount",
+      "charged twice",
+      "double charged",
+      "duplicate payment",
+      "complaint",
+      "claim",
+      "agent",
+      "human support"
+    ],
+    "action": "prefer_immediate_escalation_or_safe_clarify",
+    "rules": [
+      "If a high-risk keyword or meaning clearly maps to a high-risk intent, do not provide direct answer.",
+      "If a high-risk meaning appears in a long or mixed utterance, do not reduce it to a low-risk FAQ match.",
+      "If a high-risk keyword is present but meaning is still ambiguous, use a safe clarify question or escalate."
+    ]
+  },
+  "clarify_policy": {
+    "enabled": true,
+    "rules": [
+      "Use clarify when the input is too short or maps to multiple intents.",
+      "Use clarify when a mixed utterance contains both a general topic and a potentially risky issue, and the risky issue is not explicit enough for direct escalation.",
+      "If clarify is used twice without resolving the intent, the chatbot must escalate to support.",
+      "Clarify must narrow the issue without making assumptions.",
+      "Clarify must not ask too many questions at once.",
+      "Prefer one disambiguating question."
+    ],
+    "clarify_templates": {
+      "money": "Do you mean the amount looks lower than expected, or that your money was not reflected?",
+      "rate": "Do you want to know the exchange rate basis, or do you think your amount is different from expected?",
+      "machine": "Do you mean the screen is stuck, the QR is not working, or the machine is not accepting input?",
+      "mixed_general_and_risk_case": "Do you want general information, or do you need help with a specific issue that happened during your transaction?"
+    }
+  },
+  "response_template_policy": {
+    "template_only": true,
+    "placeholder_rules": [
+      "Only approved knowledge fields may be inserted.",
+      "If a required knowledge value is empty, do not invent one.",
+      "If the template requires a missing value, use a safer shorter version or escalate.",
+      "Do not merge multiple templates into a new free-form response."
+    ],
+    "required_template_outputs": [
+      "response_template_id",
+      "intent_id",
+      "category",
+      "needs_human",
+      "show_support_link"
+    ]
+  },
+  "statistical_accuracy_policy": {
+    "purpose": "Define statistical validation rules for automatic response eligibility, threshold tuning, and risk-sensitive routing quality.",
+    "evaluation_metrics": [
+      "precision",
+      "recall",
+      "f1_score",
+      "confidence_calibration",
+      "confusion_matrix"
+    ],
+    "rules": [
+      "Direct-answer intents must meet the minimum precision requirement on a labeled validation set before being allowed for automatic response.",
+      "High-risk intents must meet the minimum recall requirement on a labeled validation set before being relied on for escalation routing.",
+      "Confidence thresholds must be tuned based on validation performance, not chosen arbitrarily.",
+      "If an intent does not have sufficient labeled samples, it must not be promoted to automatic direct-answer status.",
+      "If statistical performance falls below the required threshold, the chatbot must use clarify or escalation instead of direct answer."
+    ],
+    "direct_answer_validation": {
+      "minimum_precision_target": 0.95,
+      "minimum_sample_size": 100,
+      "confidence_interval_level": 0.95,
+      "rule": "A direct-answer intent is eligible for automatic response only if its validated precision and the lower bound of its 95% confidence interval meet the required threshold."
+    },
+    "high_risk_validation": {
+      "minimum_recall_target": 0.98,
+      "minimum_sample_size": 100,
+      "confidence_interval_level": 0.95,
+      "rule": "A high-risk intent is eligible for production routing only if its validated recall and the lower bound of its 95% confidence interval meet the required threshold."
+    },
+    "calibration_policy": {
+      "enabled": true,
+      "rules": [
+        "Predicted confidence scores must be periodically checked for calibration against observed correctness.",
+        "If confidence calibration is poor, routing thresholds must be adjusted conservatively."
+      ]
+    },
+    "review_policy": {
+      "rules": [
+        "Statistical performance must be re-evaluated regularly using recent labeled production samples.",
+        "If confusion increases between a safe FAQ intent and a high-risk intent, the chatbot must shift toward clarify or escalation until the classifier is improved."
+      ]
+    }
+  },
+  "response_templates": [
+    {
+      "template_id": "tmpl_service_intro_v1",
+      "category": "direct_answer",
+      "body": "This service provides basic guidance for customers using the self-service exchange kiosk."
+    },
+    {
+      "template_id": "tmpl_basic_usage_v1",
+      "category": "direct_answer",
+      "body": "Please follow the kiosk screen instructions step by step. Start from the main screen, choose your language, complete the required check, review the amount, and follow the remaining instructions on screen."
+    },
+    {
+      "template_id": "tmpl_business_hours_v1",
+      "category": "direct_answer",
+      "body": "Please check the kiosk operating hours and support hours shown for this service."
+    },
+    {
+      "template_id": "tmpl_supported_languages_v1",
+      "category": "direct_answer",
+      "body": "This service supports the languages configured for the kiosk and chatbot."
+    },
+    {
+      "template_id": "tmpl_exchange_rate_basis_v1",
+      "category": "direct_answer",
+      "body": "The exchange rate is based on the representative bank posted rate used for this service. Please check the kiosk screen for the currently applied rate if shown."
+    },
+    {
+      "template_id": "tmpl_rounding_rule_v1",
+      "category": "direct_answer",
+      "body": "Amounts below KRW 1,000 may be rounded down. If you need help with a specific case, please contact support."
+    },
+    {
+      "template_id": "tmpl_amount_general_explanation_v1",
+      "category": "answer_then_escalate",
+      "body": "The final amount may differ because of the exchange rate basis and rounding rules, including amounts below KRW 1,000 being rounded down. If you need help with a specific transaction, please contact support."
+    },
+    {
+      "template_id": "tmpl_banknote_not_accepted_v1",
+      "category": "answer_then_escalate",
+      "body": "Please check the following first: 1) whether the banknote is a current valid note, 2) whether it is heavily folded or torn, and 3) whether it is inserted in the correct direction. If the issue continues, please contact support."
+    },
+    {
+      "template_id": "tmpl_passport_scan_failed_v1",
+      "category": "answer_then_escalate",
+      "body": "Please check whether the passport page is clearly visible, whether there is light reflection, whether the page is folded or covered, and whether it is aligned as instructed. If it still does not work, please contact support."
+    },
+    {
+      "template_id": "tmpl_screen_stuck_v1",
+      "category": "answer_then_escalate",
+      "body": "If the screen is not moving, please try checking the current step on screen and restart only if that is part of the approved user guidance. If the issue continues, please contact support."
+    },
+    {
+      "template_id": "tmpl_qr_access_issue_v1",
+      "category": "answer_then_escalate",
+      "body": "Please check your camera focus, distance from the QR code, and network connection. You can also try reopening the page or using the direct access method if available. If the issue continues, please contact support."
+    },
+    {
+      "template_id": "tmpl_escalate_money_not_reflected_v1",
+      "category": "immediate_escalation",
+      "body": "This issue needs support review. Please contact support and prepare the location, time of use, currency, amount, and a photo or screenshot if available."
+    },
+    {
+      "template_id": "tmpl_escalate_refund_request_v1",
+      "category": "immediate_escalation",
+      "body": "Refund-related requests need support review. Please contact support and prepare the location, time of use, currency, amount, and any photo or screenshot if available."
+    },
+    {
+      "template_id": "tmpl_escalate_duplicate_charge_v1",
+      "category": "immediate_escalation",
+      "body": "A duplicate charge concern needs support review. Please contact support and prepare the location, time of use, currency, amount, and any transaction proof if available."
+    },
+    {
+      "template_id": "tmpl_escalate_amount_issue_v1",
+      "category": "immediate_escalation",
+      "body": "A specific amount issue needs support review. Please contact support and prepare the location, time of use, currency, amount, and a photo or screenshot if available."
+    },
+    {
+      "template_id": "tmpl_escalate_transaction_result_v1",
+      "category": "immediate_escalation",
+      "body": "This issue needs support review. Please contact support and prepare the location, time of use, currency, amount, and any available transaction details."
+    },
+    {
+      "template_id": "tmpl_escalate_complaint_v1",
+      "category": "immediate_escalation",
+      "body": "Please contact support directly so your issue can be reviewed properly."
+    },
+    {
+      "template_id": "tmpl_escalate_human_agent_v1",
+      "category": "immediate_escalation",
+      "body": "You can contact support directly for help."
+    }
+  ],
+  "knowledge_usage_rules": {
+    "rules": [
+      "Only answer with knowledge fields that are filled and approved.",
+      "If a knowledge value is empty, omit that detail.",
+      "Do not guess unsupported currencies, denominations, hours, verification rules, or case outcomes.",
+      "If the customer asks for a detail not present in knowledge, use clarify or escalation.",
+      "If a selected response template requires missing knowledge values, the chatbot must use a shorter safe template or escalate, and must not invent the missing information."
+    ]
+  },
+  "business_hours_policy": {
+    "rules": [
+      "Outside support hours, the chatbot may provide general information and the support link only.",
+      "Outside support hours, the chatbot must not promise immediate manual response.",
+      "For transaction, refund, amount, and charge issues, do not imply resolution timing."
+    ]
+  },
+  "fallback_policy": {
+    "rules": [
+      "If no intent can be matched safely, do not guess.",
+      "If the input is ambiguous and low-risk, ask one clarify question.",
+      "If the input is ambiguous and potentially high-risk, escalate to support.",
+      "If repeated classification attempts fail, escalate to support."
+    ]
+  },
+  "interpretation_expansion_policy": {
+    "enabled": true,
+    "purpose": "Improve interpretation of short, informal, variant, or non-standard user utterances without escalating too early.",
+    "rules": [
+      "The chatbot must not rely on exact keyword matching alone.",
+      "The chatbot must interpret user input using semantic similarity, paraphrase awareness, and short-utterance intent approximation.",
+      "A user may describe the same issue using different wording, partial wording, broken grammar, or very short phrases.",
+      "If a short or informal utterance is semantically close to a known intent, the chatbot should prefer semantic interpretation before escalation.",
+      "If the utterance is not an exact match but strongly resembles a known issue pattern, the chatbot should treat it as an intent candidate instead of marking it unknown immediately."
+    ],
+    "supported_variation_types": [
+      "short phrase",
+      "informal phrase",
+      "spoken-style expression",
+      "fragmented sentence",
+      "light typo",
+      "reordered wording",
+      "partial symptom description"
+    ],
+    "examples": [
+      { "user_input": "cash keeps coming back", "interpret_as": "banknote_not_accepted" },
+      { "user_input": "less payout", "interpret_as": "amount_general_explanation or amount_issue_individual_case" },
+      { "user_input": "money gone?", "interpret_as": "money_not_reflected or transaction_result_check" },
+      { "user_input": "passport no read", "interpret_as": "passport_scan_failed" }
+    ]
+  },
+  "semantic_fallback_policy": {
+    "enabled": true,
+    "purpose": "Use nearest semantic intent candidates before escalating ambiguous or non-standard utterances.",
+    "rules": [
+      "If exact or near-exact phrase matching fails, the chatbot must evaluate semantic nearest intent candidates before escalation.",
+      "If the top candidate is reasonably close and not clearly contradicted by the utterance, the chatbot should prefer clarify or safe routing over immediate escalation.",
+      "If the utterance is low-risk and the semantic candidate is a safe FAQ intent, the chatbot may answer directly when confidence is acceptable.",
+      "If the utterance is medium-risk and the top candidates are close, the chatbot should use disambiguation clarify instead of escalating immediately.",
+      "If the utterance is high-risk or possibly high-risk, semantic fallback may be used to choose between escalation and clarify, but not to force a low-risk direct answer."
+    ],
+    "fallback_order": [
+      "exact_match",
+      "near_exact_match",
+      "semantic_top_candidates",
+      "disambiguation_clarify",
+      "safe_direct_answer_or_escalation"
+    ],
+    "examples": [
+      {
+        "user_input": "machine spit money out",
+        "top_candidates": ["banknote_not_accepted", "money_not_reflected"],
+        "preferred_action": "clarify"
+      },
+      {
+        "user_input": "rate pls",
+        "top_candidates": ["exchange_rate_basis"],
+        "preferred_action": "direct_answer"
+      },
+      {
+        "user_input": "wrong cash",
+        "top_candidates": ["amount_issue_individual_case", "amount_general_explanation"],
+        "preferred_action": "clarify"
+      }
+    ]
+  },
+  "disambiguation_clarify_policy": {
+    "enabled": true,
+    "purpose": "Use intent-choice clarify prompts when the user utterance is short, vague, or semantically overlaps multiple intents.",
+    "rules": [
+      "When two or more likely intents are detected, the chatbot should prefer a choice-based clarify question instead of a generic re-ask.",
+      "Clarify questions should present the most likely intent options in simple customer language.",
+      "The chatbot should limit clarify options to the top 2 or 3 most relevant interpretations.",
+      "The chatbot must not ask a broad open-ended question if intent candidates can already be narrowed down.",
+      "If one candidate is high-risk and another is low-risk, the clarify prompt must include the risky interpretation explicitly."
+    ],
+    "template_strategy": {
+      "max_options": 3,
+      "prefer_binary_choice": true,
+      "customer_friendly_labels": true
+    },
+    "examples": [
+      {
+        "user_input": "less money",
+        "top_candidates": ["amount_general_explanation", "money_not_reflected"],
+        "clarify_prompt": "Do you mean the amount looks lower than expected, or that your money was not reflected?"
+      },
+      {
+        "user_input": "machine problem",
+        "top_candidates": ["screen_stuck", "qr_access_issue", "banknote_not_accepted"],
+        "clarify_prompt": "Do you mean the screen is stuck, the QR is not working, or the machine is not accepting your banknote?"
+      }
+    ]
+  },
+  "intent_specific_threshold_policy": {
+    "enabled": true,
+    "purpose": "Allow different routing thresholds depending on intent risk and response safety.",
+    "rules": [
+      "Low-risk FAQ intents may use a more permissive direct-answer threshold than high-risk intents.",
+      "High-risk intents must remain conservative and prioritize recall and safe escalation.",
+      "When a low-risk FAQ intent is semantically clear enough and no high-risk signal is present, the chatbot may answer directly even if the confidence is below the global high-confidence threshold.",
+      "When a high-risk candidate is present, the chatbot must not lower the routing threshold for convenience."
+    ],
+    "intent_group_thresholds": {
+      "low_risk_faq": {
+        "direct_answer_threshold": 0.7,
+        "clarify_threshold": 0.5,
+        "escalate_below": 0.5
+      },
+      "medium_risk_troubleshooting": {
+        "direct_answer_threshold": 0.8,
+        "clarify_threshold": 0.55,
+        "escalate_below": 0.55
+      },
+      "high_risk_transaction": {
+        "direct_answer_threshold": 0.95,
+        "clarify_threshold": 0.75,
+        "escalate_below": 0.75
+      }
+    },
+    "intent_group_mapping": {
+      "low_risk_faq": [
+        "service_intro",
+        "basic_usage",
+        "business_hours",
+        "supported_languages",
+        "exchange_rate_basis",
+        "rounding_rule"
+      ],
+      "medium_risk_troubleshooting": [
+        "banknote_not_accepted",
+        "passport_scan_failed",
+        "screen_stuck",
+        "qr_access_issue",
+        "amount_general_explanation"
+      ],
+      "high_risk_transaction": [
+        "money_not_reflected",
+        "refund_request",
+        "duplicate_charge",
+        "amount_issue_individual_case",
+        "transaction_result_check",
+        "complaint_or_claim",
+        "human_agent_request"
+      ]
+    },
+    "examples": [
+      {
+        "user_input": "hours pls",
+        "intent_group": "low_risk_faq",
+        "confidence": 0.72,
+        "action": "direct_answer"
+      },
+      {
+        "user_input": "wrong amount",
+        "intent_group": "high_risk_transaction",
+        "confidence": 0.72,
+        "action": "clarify_or_escalate"
+      }
+    ]
+  },
+  "intent_phrase_expansion_policy": {
+    "enabled": true,
+    "purpose": "Continuously improve intent recognition using real user utterances observed in production or QA logs.",
+    "rules": [
+      "Each intent must be expanded beyond exact or formal phrases to include short, informal, and naturally occurring user expressions.",
+      "New user utterances that repeatedly trigger clarify, fallback, or unnecessary escalation should be reviewed and added as new sample phrases when appropriate.",
+      "Intent phrase coverage must include direct, indirect, symptom-based, and spoken-style expressions.",
+      "Each intent should maintain enough examples to cover both standard and non-standard phrasing.",
+      "If multiple different user utterances map to the same agent-handled case type, they should be reviewed as candidates for the same intent."
+    ],
+    "minimum_recommended_examples_per_intent": {
+      "initial_target": 20,
+      "mature_target": 40
+    },
+    "variation_buckets": [
+      "formal phrase",
+      "short phrase",
+      "symptom phrase",
+      "spoken phrase",
+      "fragmented phrase",
+      "common typo-like phrase"
+    ],
+    "review_triggers": [
+      "same meaning expressed differently across multiple sessions",
+      "frequent clarify for one intent family",
+      "frequent escalation for low-risk user questions",
+      "agent manually resolves a question that should have been handled by FAQ"
+    ],
+    "examples": {
+      "banknote_not_accepted": [
+        "cash not accepted",
+        "bill rejected",
+        "it won't take my cash",
+        "note won't go in",
+        "machine spits out my money",
+        "cash comes back"
+      ],
+      "passport_scan_failed": [
+        "passport not scanning",
+        "can't scan passport",
+        "passport no read",
+        "passport error",
+        "it won't read my passport"
+      ],
+      "exchange_rate_basis": [
+        "exchange rate",
+        "rate info",
+        "which rate",
+        "rate pls",
+        "what rate do you use"
+      ]
+    }
+  },
+  "confusion_pair_policy": {
+    "enabled": true,
+    "purpose": "Handle frequently confused intent pairs using dedicated disambiguation logic instead of generic fallback.",
+    "rules": [
+      "If the top candidate pair belongs to a known confusion pair, the chatbot should use pair-specific clarify instead of generic fallback.",
+      "If one intent in the pair is high-risk, the clarify must explicitly mention the high-risk interpretation.",
+      "Known confusion pairs should be reviewed and updated using production logs."
+    ],
+    "known_confusion_pairs": [
+      {
+        "pair": ["amount_general_explanation", "amount_issue_individual_case"],
+        "preferred_action": "clarify"
+      },
+      {
+        "pair": ["screen_stuck", "transaction_result_check"],
+        "preferred_action": "clarify_or_escalate"
+      },
+      {
+        "pair": ["exchange_rate_basis", "amount_issue_individual_case"],
+        "preferred_action": "clarify"
+      },
+      {
+        "pair": ["money_not_reflected", "banknote_not_accepted"],
+        "preferred_action": "clarify"
+      }
+    ],
+    "examples": [
+      {
+        "user_input": "my amount looks strange",
+        "matched_pair": ["amount_general_explanation", "amount_issue_individual_case"],
+        "action": "clarify"
+      },
+      {
+        "user_input": "screen stopped and not sure if money counted",
+        "matched_pair": ["screen_stuck", "transaction_result_check"],
+        "action": "clarify_or_escalate"
+      }
+    ]
+  },
+  "low_risk_rescue_policy": {
+    "enabled": true,
+    "purpose": "Reduce unnecessary escalation for low-risk FAQ-like utterances when semantic meaning is sufficiently clear.",
+    "rules": [
+      "If the utterance is low-risk and semantically close to a safe FAQ intent, the chatbot should prefer direct answer or clarify before escalation.",
+      "Low-risk FAQ rescue must not be used when a high-risk candidate is also plausible.",
+      "Fragmented wording or short informal wording alone must not force escalation for a low-risk FAQ topic.",
+      "If the expected harm of a mistaken FAQ answer is low and the semantic signal is strong, the chatbot may answer directly."
+    ],
+    "safe_rescue_intents": [
+      "service_intro",
+      "basic_usage",
+      "business_hours",
+      "supported_languages",
+      "exchange_rate_basis",
+      "rounding_rule"
+    ],
+    "examples": [
+      { "user_input": "how use", "rescued_as": "basic_usage", "action": "direct_answer" },
+      { "user_input": "lang?", "rescued_as": "supported_languages", "action": "direct_answer" },
+      { "user_input": "rate pls", "rescued_as": "exchange_rate_basis", "action": "direct_answer" }
+    ]
+  },
+  "embedding_and_classification_policy_extra_rules": {
+    "extra_rules": [
+      "Semantic intent matching must be used together with keywords, not after keywords fail completely.",
+      "Short, informal, or fragmented utterances must be interpreted using nearest semantic intent candidates before fallback escalation.",
+      "The chatbot should not treat wording variation alone as sufficient reason for escalation."
+    ]
+  },
+  "clarify_policy_extra_rules": {
+    "extra_rules": [
+      "When intent candidates can already be narrowed down, the chatbot should use intent-choice clarify instead of a generic re-ask.",
+      "Clarify should help disambiguate likely meanings, not simply ask the user to explain more."
+    ]
+  },
+  "monitoring_and_review_policy": {
+    "review_goals": [
+      "Reduce unnecessary escalation caused by wording variation.",
+      "Expand phrase coverage for known intents using real user utterances.",
+      "Identify recurring ambiguous utterances and convert them into disambiguation rules."
+    ],
+    "review_buckets": [
+      "clarify-heavy utterances",
+      "fallback-heavy utterances",
+      "low-risk escalated utterances",
+      "agent-resolved FAQ-like utterances"
+    ],
+    "actions_after_review": [
+      "add new sample phrases",
+      "add new confusion pairs",
+      "adjust intent-specific thresholds",
+      "add new clarify prompts"
+    ]
+  },
+  "prohibited_behaviors": [
+    "Do not say the transaction was successful unless verified by an approved backend rule.",
+    "Do not say the refund will be processed.",
+    "Do not diagnose the kiosk as broken.",
+    "Do not create new troubleshooting steps not defined in approved rules.",
+    "Do not estimate missing amounts, fees, or transaction results.",
+    "Do not state unsupported policy values.",
+    "Do not treat a risky utterance as a safe FAQ answer.",
+    "Do not answer only the easy part of a mixed message while ignoring the risky part."
+  ],
+  "required_model_output_schema": {
+    "type": "object",
+    "properties": {
+      "original_input": { "type": "string" },
+      "normalized_input": { "type": "string" },
+      "language": { "type": "string" },
+      "input_form": { "type": "string" },
+      "contains_multiple_issues": { "type": "boolean" },
+      "contains_transaction_risk": { "type": "boolean" },
+      "dominant_intent": { "type": ["string", "null"] },
+      "secondary_intents": { "type": "array" },
+      "predicted_category": { "type": "string" },
+      "confidence": { "type": "number" },
+      "top_candidates": { "type": "array" },
+      "decision_reason": { "type": "string" },
+      "response_template_id": { "type": ["string", "null"] },
+      "clarify_template_key": { "type": ["string", "null"] },
+      "needs_human": { "type": "boolean" },
+      "show_support_link": { "type": "boolean" },
+      "required_case_info": { "type": "array" }
+    },
+    "required": [
+      "original_input",
+      "normalized_input",
+      "language",
+      "input_form",
+      "contains_multiple_issues",
+      "contains_transaction_risk",
+      "predicted_category",
+      "confidence",
+      "decision_reason",
+      "needs_human",
+      "show_support_link",
+      "required_case_info"
+    ]
+  },
+  "example_outputs": [
+    {
+      "original_input": "exchange rate",
+      "normalized_input": "exchange rate",
+      "language": "en",
+      "input_form": "short_phrase",
+      "contains_multiple_issues": false,
+      "contains_transaction_risk": false,
+      "dominant_intent": "exchange_rate_basis",
+      "secondary_intents": [],
+      "predicted_category": "direct_answer",
+      "confidence": 0.93,
+      "top_candidates": [
+        { "intent": "exchange_rate_basis", "score": 0.93 },
+        { "intent": "amount_general_explanation", "score": 0.34 }
+      ],
+      "decision_reason": "Clear semantic match to safe general exchange-rate question.",
+      "response_template_id": "tmpl_exchange_rate_basis_v1",
+      "clarify_template_key": null,
+      "needs_human": false,
+      "show_support_link": false,
+      "required_case_info": []
+    },
+    {
+      "original_input": "I think the amount is lower than I expected.",
+      "normalized_input": "i think the amount is lower than i expected",
+      "language": "en",
+      "input_form": "sentence",
+      "contains_multiple_issues": false,
+      "contains_transaction_risk": false,
+      "dominant_intent": "amount_general_explanation",
+      "secondary_intents": [],
+      "predicted_category": "answer_then_escalate",
+      "confidence": 0.83,
+      "top_candidates": [
+        { "intent": "amount_general_explanation", "score": 0.83 },
+        { "intent": "amount_issue_individual_case", "score": 0.57 }
+      ],
+      "decision_reason": "The utterance asks for a general explanation and does not clearly assert a specific transaction dispute.",
+      "response_template_id": "tmpl_amount_general_explanation_v1",
+      "clarify_template_key": null,
+      "needs_human": false,
+      "show_support_link": false,
+      "required_case_info": []
+    },
+    {
+      "original_input": "My passport was scanned, but after I inserted the money, the screen froze and now I do not know if the transaction went through.",
+      "normalized_input": "my passport was scanned but after i inserted the money the screen froze and now i do not know if the transaction went through",
+      "language": "en",
+      "input_form": "detailed_multi_issue_message",
+      "contains_multiple_issues": true,
+      "contains_transaction_risk": true,
+      "dominant_intent": "transaction_result_check",
+      "secondary_intents": ["screen_stuck", "passport_scan_failed"],
+      "predicted_category": "immediate_escalation",
+      "confidence": 0.89,
+      "top_candidates": [
+        { "intent": "transaction_result_check", "score": 0.89 },
+        { "intent": "screen_stuck", "score": 0.74 },
+        { "intent": "money_not_reflected", "score": 0.68 }
+      ],
+      "decision_reason": "The utterance contains multiple issues, but transaction outcome uncertainty is the highest-risk issue and must be prioritized.",
+      "response_template_id": "tmpl_escalate_transaction_result_v1",
+      "clarify_template_key": null,
+      "needs_human": true,
+      "show_support_link": true,
+      "required_case_info": [
+        "location",
+        "time_of_use",
+        "currency",
+        "amount",
+        "photo_or_screenshot_if_available"
+      ]
+    },
+    {
+      "original_input": "What exchange rate do you use, and also my amount looks wrong.",
+      "normalized_input": "what exchange rate do you use and also my amount looks wrong",
+      "language": "en",
+      "input_form": "detailed_multi_issue_message",
+      "contains_multiple_issues": true,
+      "contains_transaction_risk": true,
+      "dominant_intent": "amount_issue_individual_case",
+      "secondary_intents": ["exchange_rate_basis"],
+      "predicted_category": "immediate_escalation",
+      "confidence": 0.87,
+      "top_candidates": [
+        { "intent": "amount_issue_individual_case", "score": 0.87 },
+        { "intent": "exchange_rate_basis", "score": 0.79 }
+      ],
+      "decision_reason": "The utterance includes a general rate question and a specific amount-risk issue. The risky issue must take priority.",
+      "response_template_id": "tmpl_escalate_amount_issue_v1",
+      "clarify_template_key": null,
+      "needs_human": true,
+      "show_support_link": true,
+      "required_case_info": [
+        "location",
+        "time_of_use",
+        "currency",
+        "amount",
+        "photo_or_screenshot_if_available"
+      ]
+    },
+    {
+      "original_input": "money issue",
+      "normalized_input": "money issue",
+      "language": "en",
+      "input_form": "short_phrase",
+      "contains_multiple_issues": false,
+      "contains_transaction_risk": false,
+      "dominant_intent": null,
+      "secondary_intents": [],
+      "predicted_category": "clarify",
+      "confidence": 0.43,
+      "top_candidates": [
+        { "intent": "amount_general_explanation", "score": 0.43 },
+        { "intent": "money_not_reflected", "score": 0.41 }
+      ],
+      "decision_reason": "Phrase is too broad and overlaps between safe explanation and high-risk transaction issue.",
+      "response_template_id": null,
+      "clarify_template_key": "money",
+      "needs_human": false,
+      "show_support_link": false,
+      "required_case_info": []
+    }
+  ]
+}

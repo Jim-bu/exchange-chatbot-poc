@@ -47,3 +47,19 @@ export interface ChatState {
   isLoading: boolean;
   isOpen: boolean;
 }
+
+export interface AIResponse {
+  response: string;
+  action: "answer" | "clarify" | "escalate";
+  show_support_link: boolean;
+  required_case_info: string[];
+}
+
+export interface EscalationInfo {
+  location: string;
+  currencyAndAmount: string;
+  problem: string;
+  photo: string;
+}
+
+export type ChatPhase = "chat" | "collecting" | "submitting" | "connected";

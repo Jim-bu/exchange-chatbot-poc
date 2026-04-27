@@ -1,6 +1,6 @@
 {
   "knowledge_name": "Self-Service Exchange Kiosk Knowledge Base",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "service_overview": {
     "service_description": "A self-service currency exchange kiosk that allows customers to exchange foreign banknotes quickly and conveniently.",
     "main_functions": [
@@ -14,30 +14,23 @@
   },
   "basic_flow": {
     "flow_summary": "Customers follow the instructions shown on the kiosk screen step by step.",
-    "flow_steps": [
-      "Start screen",
-      "Language selection",
-      "Passport scan and identity verification",
-      "Currency and denomination selection",
-      "Banknote insertion",
-      "Exchange amount confirmation",
-      "Transaction complete"
-    ],
     "detailed_steps": [
-      "Select your preferred language on the start screen.",
-      "Place your passport on the scanner as shown on screen.",
-      "Choose the currency type of your banknotes.",
-      "Insert banknotes one at a time as instructed.",
-      "Review the exchange amount and confirm to complete."
+      "Select language and function",
+      "Select currency",
+      "Scan passport",
+      "Review the notice and instructions",
+      "Insert banknotes",
+      "Follow the withdrawal guidance",
+      "Complete the transaction"
     ]
   },
   "supported_languages": {
-    "kiosk_languages": ["English", "Korean", "Chinese", "Japanese"],
-    "chatbot_languages": ["English"]
+    "kiosk_languages": ["Korean", "English", "Chinese", "Japanese"],
+    "chatbot_languages": ["Korean", "English", "Chinese", "Japanese"]
   },
   "business_hours": {
-    "kiosk_hours": "Varies by location. Please check the kiosk or store signage.",
-    "support_hours": "Monday to Friday, 09:00 – 18:00 KST (excluding public holidays)"
+    "kiosk_hours": "24/7",
+    "support_hours": "08:00 to 17:00 Korea Standard Time"
   },
   "eligibility": {
     "eligible_users": "Foreign nationals with a valid foreign passport",
@@ -45,8 +38,13 @@
     "restrictions": []
   },
   "currencies_and_denominations": {
-    "current_banknote_policy": "Accepts major foreign currency banknotes in valid condition. Specific accepted currencies and denominations are shown on the kiosk screen.",
-    "damaged_banknote_policy": "Heavily torn, crumpled, or marked banknotes may not be accepted. Please use clean and undamaged notes.",
+    "supported_currencies": [
+      "USD", "JPY", "HKD", "SGD", "AUD", "CAD", "GBP", "NZD",
+      "EUR", "CHF", "CNY", "TWD", "THB", "MYR", "PHP", "VND", "IDR"
+    ],
+    "supported_denominations": "Current valid banknotes only",
+    "current_banknote_policy": "Only current valid banknotes are accepted.",
+    "damaged_banknote_policy": "Damaged banknotes such as folded or torn notes are not accepted.",
     "unsupported_note_policy": "If a note is not accepted, please check whether it is a supported denomination and currency."
   },
   "banknote_input": {
@@ -56,7 +54,7 @@
       "Insert the note in the correct orientation as shown on screen.",
       "Insert one note at a time."
     ],
-    "single_note_only": true,
+    "single_note_only": "Yes",
     "multi_note_input": "Multiple notes must be inserted one at a time, not together.",
     "partial_insertion_guidance": "If the machine does not accept the note, do not force it in. Remove the note and retry."
   },
@@ -68,21 +66,18 @@
       "Ensure there is no light reflection or shadow on the page.",
       "Keep the passport still during scanning."
     ],
-    "additional_scan_guidance": [
-      "If the page is bent or wrinkled, gently flatten it before scanning.",
-      "Ensure the machine's camera window is clean and unobstructed."
-    ],
+    "additional_scan_guidance": "If passport scanning fails, retry after checking the passport page condition and scan alignment.",
     "retry_policy": "If the scan fails, remove the passport and try again. If it continues to fail after multiple attempts, contact support."
   },
   "exchange_rate": {
-    "rate_basis": "The exchange rate applied is based on the representative bank-posted rate used for this service at the time of transaction.",
-    "rate_reference_time": "The rate is updated periodically. The exact reference time may vary.",
-    "rate_update_cycle": "Rates are updated on a scheduled basis during business hours.",
-    "rate_display_on_screen": "The current rate applied to your transaction is displayed on the kiosk screen before you confirm."
+    "rate_basis": "The exchange rate follows the representative exchange rate of a major bank in Korea.",
+    "rate_reference_time": "The most recently posted bank rate",
+    "rate_update_cycle": "Updated every hour",
+    "rate_display_on_screen": "Yes"
   },
   "amount_and_rounding": {
-    "rounding_rule": "Amounts below KRW 1,000 are rounded down and not paid out.",
-    "general_amount_rules": "The final KRW amount depends on the exchange rate at the time and the rounding rule.",
+    "rounding_rule": "Amounts below KRW 1,000 are rounded down.",
+    "general_amount_rules": "The final amount is calculated based on the posted exchange rate and the rounding rule below KRW 1,000.",
     "possible_reasons_for_difference": [
       "Exchange rate applied at the time of transaction",
       "Rounding down of sub-1,000 KRW amounts",
@@ -103,21 +98,20 @@
     "refund_policy": "Refund eligibility and processing depend on the circumstances of the transaction. Please contact support with your case details.",
     "settlement_timing": "Transaction settlement timing varies and is not confirmed by the chatbot.",
     "required_case_info": [
-      "Location or store name",
+      "Store or location",
       "Time of use",
-      "Currency type",
-      "Amount involved",
+      "Currency",
+      "Amount",
       "Photo or screenshot if available"
     ]
   },
   "handover_required_info": {
-    "support_link": "https://exchange.channel.io",
     "support_message": "Please contact our support team with the details of your issue.",
-    "required_info_for_support": [
-      "Location or store name",
+    "required_info": [
+      "Store or location",
       "Time of use",
-      "Currency type",
-      "Amount involved",
+      "Currency",
+      "Amount",
       "Photo or screenshot if available"
     ]
   }

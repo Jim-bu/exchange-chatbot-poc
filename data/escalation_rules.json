@@ -1,0 +1,54 @@
+{
+  "version": "1.0.0",
+  "description": "Rules that determine when to escalate to a human support agent",
+  "escalation_triggers": {
+    "immediate_escalation": {
+      "description": "Always escalate immediately — do not attempt to resolve",
+      "conditions": [
+        "Customer reports money was taken but no KRW was dispensed",
+        "Machine error occurred mid-transaction with money already inserted",
+        "Passport was scanned but transaction failed and cash is missing",
+        "Customer received wrong amount of KRW",
+        "Machine dispensed less KRW than shown on confirmation screen",
+        "Customer suspects fraud or unauthorized transaction",
+        "Physical damage to the kiosk is observed",
+        "The kiosk is displaying an unexpected error code"
+      ]
+    },
+    "escalate_after_guidance": {
+      "description": "Provide troubleshooting guidance first; escalate if issue persists",
+      "conditions": [
+        "Passport scan fails after 3+ attempts",
+        "Banknote is rejected repeatedly despite following all guidelines",
+        "QR code does not work after basic troubleshooting steps",
+        "Kiosk screen is frozen or unresponsive",
+        "Customer cannot find the supported denomination or currency on screen"
+      ]
+    },
+    "soft_escalation": {
+      "description": "Offer support link but do not require escalation",
+      "conditions": [
+        "Customer asks about refund eligibility",
+        "Customer asks about a past transaction",
+        "Customer asks about exchange rate discrepancy",
+        "Customer is dissatisfied with the answer provided"
+      ]
+    }
+  },
+  "required_info_for_escalation": [
+    "Location or store name",
+    "Date and time of use",
+    "Currency type",
+    "Amount involved",
+    "Photo or screenshot of error (if available)"
+  ],
+  "non_escalation_topics": [
+    "General questions about how the kiosk works",
+    "Questions about supported languages",
+    "Questions about business hours",
+    "Questions about eligible users",
+    "Basic banknote insertion guidance",
+    "Basic passport scan guidance",
+    "Exchange rate display questions"
+  ]
+}
