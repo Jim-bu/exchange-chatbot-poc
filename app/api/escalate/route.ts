@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { createSession } from "@/lib/session-store";
 
 interface WebhookPayload {
   body: string;
@@ -7,19 +8,29 @@ interface WebhookPayload {
 }
 
 export async function POST(request: NextRequest) {
-  const { messages, info } = await request.json();
+  const { messages, info, sessionId } = await request.json();
 
-  const webhookUrl = process.env.AGENT_WEBHOOK_URL;
-  if (!webhookUrl) {
-    return Response.json({ error: "not_configured" }, { status: 503 });
-  }
+  const host = request.headers.get("host") ?? "localhost:3000";
+  const protocol = host.startsWith("localhost") ? "http" : "https";
+  const agentUrl = `${protocol}://${host}/agent`;
 
-  const history: string = messages
+  const transcript: string = messages
     .map((m: { role: string; content: string }) => {
       const label = m.role === "user" ? "Customer" : "Bot";
       return `[${label}] ${m.content}`;
     })
     .join("\n\n");
+
+  // Create session for live handoff
+  const sid =
+    sessionId ??
+    `session_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+  createSession({ id: sid, createdAt: Date.now(), status: "waiting", info, transcript });
+
+  const webhookUrl = process.env.AGENT_WEBHOOK_URL;
+  if (!webhookUrl) {
+    return Response.json({ ok: true, sessionId: sid });
+  }
 
   const timestamp = new Date().toLocaleString("ko-KR", {
     timeZone: "Asia/Seoul",
@@ -40,11 +51,12 @@ export async function POST(request: NextRequest) {
       {
         title: "📸 Photo / Screenshot",
         description:
-          info.photo && info.photo.toLowerCase() !== "none"
+          info.photo && info.photo.toLowerCase() !== "no photo provided"
             ? info.photo
             : "None",
       },
-      { title: "💬 Conversation History", description: history },
+      { title: "💬 Conversation History", description: transcript },
+      { title: "🖥️ Agent Panel", description: `${agentUrl}?session=${sid}` },
     ],
   };
 
@@ -55,8 +67,8 @@ export async function POST(request: NextRequest) {
   });
 
   if (!res.ok) {
-    return Response.json({ error: "webhook_failed" }, { status: 500 });
+    return Response.json({ error: "webhook_failed", sessionId: sid }, { status: 500 });
   }
 
-  return Response.json({ ok: true });
+  return Response.json({ ok: true, sessionId: sid });
 }

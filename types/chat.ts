@@ -17,6 +17,7 @@ export interface ChatMessage {
   id: string;
   role: MessageRole;
   content: string;
+  isAgent?: boolean;
   showSupportLink?: boolean;
   requiredCaseInfo?: string[];
   timestamp: Date;
@@ -62,4 +63,10 @@ export interface EscalationInfo {
   photo: string;
 }
 
-export type ChatPhase = "chat" | "collecting" | "submitting" | "connected";
+export type ChatPhase =
+  | "chat"
+  | "collecting"
+  | "submitting"
+  | "waiting"
+  | "handoff"
+  | "closed";

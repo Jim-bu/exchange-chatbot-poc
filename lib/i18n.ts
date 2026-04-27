@@ -32,9 +32,15 @@ export interface T {
   headerTitle: string;
   headerSubAI: string;
   headerSubConnected: string;
+  headerSubWaiting: string;
+  headerSubHandoff: string;
   inputHint: string;
   inputPlaceholder: string;
+  handoffInputPlaceholder: string;
   connectedFooter: string;
+  waitingMessage: string;
+  handoffAgentJoined: string;
+  closedMessage: string;
   connectingTitle: string;
   connectingSubtitle: string;
   inProgress: string;
@@ -58,9 +64,18 @@ export const translations: Record<Lang, T> = {
     headerTitle: "Exchange Support",
     headerSubAI: "AI Assistant",
     headerSubConnected: "Agent notified",
+    headerSubWaiting: "Waiting for agent...",
+    headerSubHandoff: "Connected with agent",
     inputHint: "Describe your issue in 2+ words for the best answer.",
     inputPlaceholder: "Type your question...",
+    handoffInputPlaceholder: "Reply to agent...",
     connectedFooter: "Request sent · An agent will follow up shortly",
+    waitingMessage:
+      "Your request has been submitted.\n\nAn agent will join this chat shortly. Please wait here — you'll be connected automatically.",
+    handoffAgentJoined:
+      "A support agent has joined the chat. Please continue your conversation here.",
+    closedMessage:
+      "This support session has ended. Thank you for contacting us.",
     connectingTitle: "Connecting to Support",
     connectingSubtitle: "Please provide a few details",
     inProgress: "In progress",
@@ -107,9 +122,18 @@ export const translations: Record<Lang, T> = {
     headerTitle: "両替サポート",
     headerSubAI: "AIアシスタント",
     headerSubConnected: "担当者に通知済み",
+    headerSubWaiting: "担当者を接続中...",
+    headerSubHandoff: "担当者と接続中",
     inputHint: "より正確な回答のため、2語以上でご説明ください。",
     inputPlaceholder: "質問を入力してください...",
+    handoffInputPlaceholder: "担当者に返信...",
     connectedFooter: "送信完了 · 担当者よりご連絡いたします",
+    waitingMessage:
+      "リクエストを送信しました。\n\n担当者がこのチャットに参加するまでしばらくお待ちください。自動的に接続されます。",
+    handoffAgentJoined:
+      "サポート担当者がチャットに参加しました。引き続きこちらでお話しください。",
+    closedMessage:
+      "このサポートセッションは終了しました。ご利用ありがとうございました。",
     connectingTitle: "サポートに接続中",
     connectingSubtitle: "いくつかの情報をご提供ください",
     inProgress: "接続中",
@@ -156,9 +180,18 @@ export const translations: Record<Lang, T> = {
     headerTitle: "换汇支持",
     headerSubAI: "AI 助理",
     headerSubConnected: "已通知工作人员",
+    headerSubWaiting: "等待客服接入...",
+    headerSubHandoff: "已与客服连接",
     inputHint: "请用两个或以上的词描述您的问题，以便获得最准确的回答。",
     inputPlaceholder: "请输入您的问题...",
+    handoffInputPlaceholder: "回复客服...",
     connectedFooter: "请求已发送 · 工作人员将尽快联系您",
+    waitingMessage:
+      "您的请求已提交。\n\n请在此等候，客服人员即将加入本次对话，连接成功后将自动通知您。",
+    handoffAgentJoined:
+      "客服人员已加入对话，请继续在此进行沟通。",
+    closedMessage:
+      "本次支持会话已结束，感谢您的联系。",
     connectingTitle: "正在连接客服",
     connectingSubtitle: "请提供以下信息",
     inProgress: "连接中",
@@ -205,9 +238,18 @@ export const translations: Record<Lang, T> = {
     headerTitle: "換匯支援",
     headerSubAI: "AI 助理",
     headerSubConnected: "已通知工作人員",
+    headerSubWaiting: "等待客服接入...",
+    headerSubHandoff: "已與客服連線",
     inputHint: "請用兩個或以上的詞描述您的問題，以便獲得最準確的回答。",
     inputPlaceholder: "請輸入您的問題...",
+    handoffInputPlaceholder: "回覆客服...",
     connectedFooter: "請求已發送 · 工作人員將盡快聯繫您",
+    waitingMessage:
+      "您的請求已提交。\n\n請在此等候，客服人員即將加入本次對話，連線成功後將自動通知您。",
+    handoffAgentJoined:
+      "客服人員已加入對話，請繼續在此進行溝通。",
+    closedMessage:
+      "本次支援會話已結束，感謝您的聯絡。",
     connectingTitle: "正在連線客服",
     connectingSubtitle: "請提供以下資訊",
     inProgress: "連線中",
