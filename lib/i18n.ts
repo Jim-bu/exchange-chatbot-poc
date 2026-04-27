@@ -54,6 +54,7 @@ export interface T {
   photoSkip: string;
   photoRetake: string;
   photoSend: string;
+  endSession: string;
 }
 
 export const translations: Record<Lang, T> = {
@@ -113,6 +114,7 @@ export const translations: Record<Lang, T> = {
     photoSkip: "Skip — no photo",
     photoRetake: "Retake",
     photoSend: "Send Photo",
+    endSession: "End session",
   },
 
   ja: {
@@ -171,6 +173,7 @@ export const translations: Record<Lang, T> = {
     photoSkip: "スキップ（写真なし）",
     photoRetake: "撮り直す",
     photoSend: "写真を送る",
+    endSession: "セッションを終了する",
   },
 
   "zh-CN": {
@@ -229,6 +232,7 @@ export const translations: Record<Lang, T> = {
     photoSkip: "跳过 — 没有照片",
     photoRetake: "重新拍摄",
     photoSend: "发送照片",
+    endSession: "结束对话",
   },
 
   "zh-TW": {
@@ -287,5 +291,6 @@ export const translations: Record<Lang, T> = {
     photoSkip: "略過 — 沒有照片",
     photoRetake: "重新拍攝",
     photoSend: "傳送照片",
+    endSession: "結束對話",
   },
 };

@@ -27,48 +27,24 @@ export async function POST(request: NextRequest) {
     `session_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
   createSession({ id: sid, createdAt: Date.now(), status: "waiting", info, transcript });
 
-  const webhookUrl = process.env.AGENT_WEBHOOK_URL;
-  if (!webhookUrl) {
-    return Response.json({ ok: true, sessionId: sid });
-  }
-
-  const timestamp = new Date().toLocaleString("ko-KR", {
-    timeZone: "Asia/Seoul",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
-  const payload: WebhookPayload = {
-    body: `🔔 Customer Support Request — ${timestamp}`,
-    connectColor: "#E8534F",
-    connectInfo: [
-      { title: "📍 Location", description: info.location },
-      { title: "💱 Currency / Amount", description: info.currencyAndAmount },
-      { title: "⚠️ Issue", description: info.problem },
-      {
-        title: "📸 Photo / Screenshot",
-        description:
-          info.photo && info.photo.toLowerCase() !== "no photo provided"
-            ? info.photo
-            : "None",
-      },
-      { title: "💬 Conversation History", description: transcript },
-      { title: "🖥️ Agent Panel", description: `${agentUrl}?session=${sid}` },
-    ],
-  };
-
-  const res = await fetch(webhookUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  if (!res.ok) {
-    return Response.json({ error: "webhook_failed", sessionId: sid }, { status: 500 });
-  }
+  // Webhook temporarily disabled — session is created above and visible directly in the agent panel
+  // const webhookUrl = process.env.AGENT_WEBHOOK_URL;
+  // if (webhookUrl) {
+  //   const timestamp = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+  //   const payload: WebhookPayload = {
+  //     body: `🔔 Customer Support Request — ${timestamp}`,
+  //     connectColor: "#E8534F",
+  //     connectInfo: [
+  //       { title: "📍 Location", description: info.location },
+  //       { title: "💱 Currency / Amount", description: info.currencyAndAmount },
+  //       { title: "⚠️ Issue", description: info.problem },
+  //       { title: "📸 Photo / Screenshot", description: info.photo && info.photo.toLowerCase() !== "no photo provided" ? info.photo : "None" },
+  //       { title: "💬 Conversation History", description: transcript },
+  //       { title: "🖥️ Agent Panel", description: `${agentUrl}?session=${sid}` },
+  //     ],
+  //   };
+  //   await fetch(webhookUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+  // }
 
   return Response.json({ ok: true, sessionId: sid });
 }

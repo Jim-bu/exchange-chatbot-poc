@@ -254,6 +254,19 @@ export default function ChatWidget() {
     }
   }
 
+  async function closeSession() {
+    await fetch(`/api/session/${sessionId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "closed" }),
+    });
+    setPhase("closed");
+    setMessages((prev) => [
+      ...prev,
+      { id: generateId(), role: "assistant", content: t.closedMessage, timestamp: new Date() },
+    ]);
+  }
+
   async function sendHandoffMessage(text: string) {
     const userMsg: ChatMessageType = {
       id: generateId(),
@@ -473,15 +486,29 @@ export default function ChatWidget() {
               </svg>
             </button>
           </form>
+          <button
+            onClick={closeSession}
+            className="w-full py-2 text-[11px] text-gray-400 hover:text-red-500 transition-colors"
+          >
+            {t.endSession}
+          </button>
         </div>
       )}
 
       {/* Waiting / Closed footer */}
       {(phase === "waiting" || phase === "closed") && (
-        <div className="border-t border-gray-100 bg-white px-4 py-4 pb-[max(16px,env(safe-area-inset-bottom))]">
-          <p className="text-center text-xs text-gray-400">
+        <div className="border-t border-gray-100 bg-white px-4 py-3 pb-[max(14px,env(safe-area-inset-bottom))] flex flex-col items-center gap-2">
+          <p className="text-xs text-gray-400">
             {phase === "waiting" ? t.headerSubWaiting : t.connectedFooter}
           </p>
+          {phase === "waiting" && (
+            <button
+              onClick={closeSession}
+              className="text-[11px] text-gray-400 hover:text-red-500 transition-colors"
+            >
+              {t.endSession}
+            </button>
+          )}
         </div>
       )}
 
