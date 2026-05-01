@@ -88,7 +88,7 @@ export const translations: Record<Lang, T> = {
       {
         label: "Store location",
         question: "What is the store name or location where you used the kiosk?",
-        placeholder: "e.g. Lotte Mart Jamsil, B1F",
+        placeholder: "e.g. Store name, floor",
       },
       {
         label: "Currency & amount",
@@ -147,7 +147,7 @@ export const translations: Record<Lang, T> = {
       {
         label: "ご利用場所",
         question: "ご利用になった店舗名または場所を教えてください。",
-        placeholder: "例：ロッテマート蚕室 B1F",
+        placeholder: "例：店舗名・フロア",
       },
       {
         label: "通貨・金額",
@@ -206,7 +206,7 @@ export const translations: Record<Lang, T> = {
       {
         label: "使用地点",
         question: "请提供您使用换汇机的店铺名称或地点。",
-        placeholder: "例：乐天超市蚕室店 B1F",
+        placeholder: "例：店铺名称 · 楼层",
       },
       {
         label: "货币与金额",
@@ -265,7 +265,7 @@ export const translations: Record<Lang, T> = {
       {
         label: "使用地點",
         question: "請提供您使用換匯機的店舖名稱或地點。",
-        placeholder: "例：樂天超市蠶室店 B1F",
+        placeholder: "例：店舖名稱 · 樓層",
       },
       {
         label: "貨幣與金額",

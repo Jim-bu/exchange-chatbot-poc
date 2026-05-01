@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 
 // Session creation is now handled client-side via POST /api/session
 // so that all session state lives in the single [[...path]] Lambda.
-// This route only sends the Jandi webhook notification (currently disabled).
+// This route only sends the webhook notification (currently disabled).
 
 export async function POST(request: NextRequest) {
   const { messages, sessionId } = await request.json();
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     })
     .join("\n\n");
 
-  // Jandi webhook temporarily disabled — sessions appear directly in agent panel
+  // Webhook temporarily disabled — sessions appear directly in agent panel
   // const webhookUrl = process.env.AGENT_WEBHOOK_URL;
   // if (webhookUrl) {
   //   const timestamp = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });

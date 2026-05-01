@@ -23,7 +23,7 @@
 - 금전·거래·환불 관련 이슈는 구조화된 정보 수집 후 상담사 인계
 - `/admin` 패널에서 지식/정책 JSON을 코드 수정 없이 편집 가능
 
-**현재 구현 스택:** Next.js 16.2.4 · TypeScript · Tailwind CSS v4 · OpenAI GPT-4o-mini · Vercel · Webhook(Jandi 호환)
+**현재 구현 스택:** Next.js 16.2.4 · TypeScript · Tailwind CSS v4 · OpenAI GPT-4o-mini · Vercel · Webhook
 
 ---
 
